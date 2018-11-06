@@ -106,13 +106,15 @@ chainer.config.autotune = True
 
 # dataset path
 # imageの入っているpathを指定
-img_root1 = r'C:\Users\NaoyaInoue\Desktop\syspro_gr3\avi2jpg\jpg_label0'
-img_root2 = r'C:\Users\NaoyaInoue\Desktop\syspro_gr3\avi2jpg\jpg_label1'
-img_root3 = r'C:\Users\NaoyaInoue\Desktop\syspro_gr3\avi2jpg\jpg_label2'
+dir_root = r'C:\Users\NaoyaInoue\Desktop\syspro_gr3\avi2jpg'
+img_root1 = r'jpg_label0'
+img_root2 = r'jpg_label1'
+img_root3 = r'jpg_label2'
 img_root = [img_root1, img_root2, img_root3]
 
 N = 300; # １クラス当たりN個乱数で，抽出する．
-Honkan_dataset = create_dataset.create_data_set(img_root, [0,1,2], N)
-#print(len(Honkan_dataset))
-model = train(network_composition.DeepCNN(3), Honkan_dataset, batchsize=1, max_epoch=100, base_lr=0.01, lr_decay=(30, 'epoch'))
+Honkan_dataset = create_dataset.create_data_set(dir_root, img_root, [0,1,2], N)
+print(len(Honkan_dataset))
+print(Honkan_dataset[100][1])
+#model = train(network_composition.DeepCNN(3), Honkan_dataset, batchsize=1, max_epoch=100, base_lr=0.01, lr_decay=(30, 'epoch'))
 #model = train(MyNet(3), Honkan_dataset, batchsize=1, max_epoch=100, base_lr=0.1, lr_decay=(30, 'epoch'))

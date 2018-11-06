@@ -16,14 +16,16 @@ def search_img_name(image_root):
             image_name.append(file)
     return data_number, image_name
 
-def create_data_set(image_roots,labels,N):
-    img_data = []
-    label_data = []
-    for (image_root,label) in zip(image_roots,labels):
-        (data_number, img_data) = search_img_name(image_root)
+def create_data_set(dir_root, image_root_set, label_set, N):
+    img_name_set = []
+    label_data_set = []
+    for (image_root,label) in zip(image_root_set,label_set):
+        (data_number, img_name) = search_img_name(os.path.join(dir_root,image_root))
         if N < data_number:
-            img_data.extend(random.sample(img_data, k=N))
+            img_name_set.extend([os.path.join(image_root,i) for i in random.sample(img_name, k=N)])
             data_number = N
-        label_data.extend([label for i in range(data_number)])
-    dataset = chainer.datasets.LabeledImageDataset(list(zip(img_data,label_data)),root=image_root)
+        else :
+            img_name_set.extend([os.path.join(image_root,i) for i in img_name])
+        label_data_set.extend([label for i in range(data_number)])
+    dataset = chainer.datasets.LabeledImageDataset(list(zip(img_name_set,label_data_set)),root=dir_root)
     return dataset
