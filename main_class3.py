@@ -15,7 +15,7 @@ from chainercv import transforms
 from chainer.datasets import TransformDataset
 
 from mymodule import create_dataset
-from mymodule import network_compostion
+from mymodule import network_composition
 
 #############################################################
 def reset_seed(seed=0):
@@ -67,6 +67,8 @@ def train(network_object, dataset, batchsize=128, gpu_id=0, max_epoch=20, postfi
     trainer.extend(extensions.PlotReport(['main/loss', 'val/main/loss'], x_key='epoch', file_name='loss.png'))
     trainer.extend(extensions.PlotReport(['main/accuracy', 'val/main/accuracy'], x_key='epoch', file_name='accuracy.png'))
     trainer.extend(extensions.dump_graph('main/loss'))
+    trainer.extend(extensions.ProgressBar())
+
     if lr_decay is not None:
         trainer.extend(extensions.ExponentialShift('lr', 0.1), trigger=lr_decay)
     trainer.run()
