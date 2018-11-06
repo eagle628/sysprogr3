@@ -1,9 +1,9 @@
 #!python3.6.6
-import numpy as np
-import chainer
 import os
 import re
 import random
+import numpy as np
+import chainer
 
 def search_img_name(image_root):
     data_number = 0
