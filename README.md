@@ -1,6 +1,7 @@
 # main_class3.py
 3クラス分類用
 Requiremetns
+
 | packkage | version     |
 | :------------- | :------------- |
 | chainer       | 5.0.0       |
@@ -11,6 +12,7 @@ Requiremetns
 ## create_dataset
 chainer用のデータセットを作る関数
 Requiremetns
+
 | packkage | version     |
 | :------------- | :------------- |
 | chainer       | 5.0.0       |
@@ -25,6 +27,7 @@ root
 interbalは，intervalフレームごとに取るということにして要る．
 
 Requiremetns
+
 | packkage | version     |
 | :------------- | :------------- |
 | numpy   | 1.15.2  |
@@ -33,6 +36,7 @@ Requiremetns
 ## network_composition
 ネットワーク構造の関数
 Requiremetns
+
 | packkage | version     |
 | :------------- | :------------- |
 | chainer       | 5.0.0       |
