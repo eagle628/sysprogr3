@@ -23,6 +23,24 @@ class DeepCNN(chainer.ChainList):
             x = f(x)
         return x
 
+class SmallDeepCNN(chainer.ChainList):
+
+    def __init__(self, n_output):
+        super(SmallDeepCNN, self).__init__(
+            ConvBlock(64),
+            ConvBlock(64, True),
+            ConvBlock(128),
+            ConvBlock(128, True),
+            LinearBlock(),
+            LinearBlock(),
+            L.Linear(None, n_output)
+        )
+
+    def __call__(self, x):
+        for f in self:
+            x = f(x)
+        return x
+
 class MyNet(chainer.Chain):
 
     def __init__(self, n_out):
