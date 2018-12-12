@@ -2,12 +2,6 @@
 3クラス分類用
 Requiremetns
 
-| packkage | version     |
-| :------------- | :------------- |
-| chainer       | 5.0.0       |
-| chainercv   | 0.11.0  |
-| numpy   | 1.15.2  |
-
 # mymodule
 ## create_dataset
 chainer用のデータセットを作る関数
@@ -21,10 +15,6 @@ Requiremetns
 ###　search_img_name(image_root)
 image_root内部にjpg画像が何枚あるかを検索し，そのfile名をlistで返す関数
 
-| packkage | version     |
-| :------------- | :------------- |
-| chainer       | 5.0.0       |
-| numpy   | 1.15.2  |
 
 ## generate_image
 ### video2frames(root='.', video_file='video.mov', image_dir='image_dir', image_file='img_frame', extension='.jpg', interval=0)
@@ -37,19 +27,14 @@ NOTE :　　
 - video_fileは，MOVでなくても大丈夫です．例えば，DVI等でも大丈夫です．
 - extensionもjpg以外も可能ですが，chainerがjpg, pngにしか対応していない.
 
-Requiremetns
-
-| packkage | version     |
-| :------------- | :------------- |
-| numpy   | 1.15.2  |
-| opencv-python   | 3.4.3.18  |
 
 ## network_composition
 ネットワーク構造の関数
 - ネットワーク構造構造の定義は，このファイル内部に書き込んでいってください．
 Requiremetns
 
-| packkage | version     |
-| :------------- | :------------- |
-| chainer       | 5.0.0       |
-| numpy   | 1.15.2  |
+## Enbironment
+実行環境
+とりあえず自分のところで動作した最小環境をrequirements.txtに書き出しておきました．　　
+python，本体は，3.6.6です．requirements.txtをpip installとかすれば楽に環境構築できるはず．（多分）　　
+generate_dataset\processing\の関数の一部は，python2系列っぽいので，注意してください．
