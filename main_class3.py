@@ -54,7 +54,7 @@ def train(network_object, dataset, batchsize=128, gpu_id=0, max_epoch=20, postfi
     updater = training.StandardUpdater(train_iter, optimizer, device=gpu_id)
 
     # 6. Trainer
-    trainer = training.Trainer(updater, (max_epoch, 'epoch'), out='{}_HonkanEntrance3_data1500_{}result'.format(network_object.__class__.__name__, postfix))
+    trainer = training.Trainer(updater, (max_epoch, 'epoch'), out='{}_HonkanEntrance3_NewSize_{}result'.format(network_object.__class__.__name__, postfix))
 
 
     # 7. Trainer extensions
@@ -106,15 +106,15 @@ chainer.config.autotune = True
 
 # dataset path
 # imageの入っているpathを指定
-dir_root = r'C:\Users\NaoyaInoue\Desktop\syspro_gr3\avi2jpg'
-img_root1 = r'jpg_label0'
-img_root2 = r'jpg_label1'
-img_root3 = r'jpg_label2'
+dir_root = r'C:\Users\NaoyaInoue\Desktop\training_data'
+img_root1 = r'label0\image_dir'
+img_root2 = r'label1\image_dir'
+img_root3 = r'label2\image_dir'
 img_root = [img_root1, img_root2, img_root3]
 
-N = 300; # １クラス当たりN個乱数で，抽出する．
+N = 500; # １クラス当たりN個乱数で，抽出する．
 Honkan_dataset = create_dataset.create_data_set(dir_root, img_root, [0,1,2], N)
 print(len(Honkan_dataset))
-print(Honkan_dataset[100][1])
 #model = train(network_composition.DeepCNN(3), Honkan_dataset, batchsize=1, max_epoch=100, base_lr=0.01, lr_decay=(30, 'epoch'))
+model = train(network_composition.SmallDeepCNN(3), Honkan_dataset, batchsize=1, max_epoch=100, base_lr=0.01, lr_decay=(30, 'epoch'))
 #model = train(MyNet(3), Honkan_dataset, batchsize=1, max_epoch=100, base_lr=0.1, lr_decay=(30, 'epoch'))

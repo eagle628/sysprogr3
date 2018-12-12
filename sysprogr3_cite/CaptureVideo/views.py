@@ -8,7 +8,7 @@ from django.views import generic
 from .forms import PhotoForm
 from .models import Photo, Progress
 
-from background_task import background
+#from background_task import background
 import cv2
 import numpy as np
 
