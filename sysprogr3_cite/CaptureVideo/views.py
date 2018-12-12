@@ -4,30 +4,59 @@ import time
 from multiprocessing import Process
 
 from django.shortcuts import render, redirect, reverse, get_object_or_404
-from django.views import generic
-from .forms import PhotoForm
+from django.views import generic, View
+from .forms import PhotoForm, PassForm
 from .models import Photo, Progress
 
 #from background_task import background
 import cv2
 import numpy as np
+import logging
 
 def index(request):
     if request.method == 'GET':
-        return render(request, 'CaptureVideo/index.html', {
-            'form': PhotoForm(),
-        })
+        return render(request, 'CaptureVideo/index.html')
     elif request.method == 'POST':
-        form = PhotoForm(request.POST, request.FILES)
-        if not form.is_valid():
-            raise ValueError('invalid form')
+        Next = SendImageForm()
+        return Next.get(request)
 
-        photo = Photo()
-        photo.image = form.cleaned_data['image']
-        photo.save()
+class SendImageForm(View):
+    template_name = 'CaptureVideo/sendimageform.html'
+    mode = False
 
-        #return render(request,'CaptureVideo/processing.html' )
-        return redirect('CaptureVideo:processing')
+    def get(self, request):
+        form1 = PhotoForm()
+        form2 = PassForm()
+        return render(request, self.template_name, {'form1': form1, 'form2':form2, 'mode':self.mode},)
+
+    def post(self, request, *args):
+        if 'upload' in request.POST:
+            form = PhotoForm(self.request.POST, self.request.FILES)
+            if not form.is_valid():
+                raise ValueError('invalid form')
+
+            photo = Photo()
+            photo.image = form.cleaned_data['image']
+            photo.save()
+            logging.debug('save model')
+            self.mode = True
+            return self.get(request)
+        elif 'next' in request.POST:
+            return redirect('CaptureVideo:processing')
+
+class StartProcessing(View):
+    template_name = 'CaptureVideo/processing.html'
+
+    def get(self, request, *args, **kwargs):
+        return render(request, self.template_name)
+
+    def post(self, request, *args, **kwargs):
+        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        image_root = os.path.join(BASE_DIR,'media','CaptureVideo','media')
+        image_name_set = search_img_name(image_root, '.jpg')
+        ImageTranspose(image_root, image_name_set[0])
+        return redirect('CaptureVideo:test')
+
 
 def test(request):
     if request.method == 'GET':
@@ -41,6 +70,50 @@ def test(request):
             os.remove(os.path.join(image_root,image_name))
         return redirect('http://google.com/')
 
+####################### Local function
+
+def search_img_name(image_root, extension):
+    image_name = []
+    files = os.listdir(image_root)
+    for file in files:
+        index = re.search(extension, file)# 拡張子が，jpgのものを検出
+        if index:
+            image_name.append(file)
+    return image_name
+
+def ImageTranspose(image_root, image_name):
+    # 入力画像をグレースケールで読み込み
+    gray = cv2.imread(os.path.join(image_root,image_name), 0)
+    # 方法3
+    dst3 = cv2.Laplacian(gray, cv2.CV_32F, ksize=7)
+    # 結果を出力
+    cv2.imwrite(os.path.join(image_root,"output.jpg"), dst3)
+
+###############################################################################
+
+
+"""
+def sendimageform(request):
+    if request.method == 'GET':
+        return render(request, 'CaptureVideo/sendimageform.html', {
+            'form': PhotoForm(),
+        })
+    elif request.method == 'POST':
+        form = PhotoForm(request.POST, request.FILES)
+        if not form.is_valid():
+            raise ValueError('invalid form')
+
+        photo = Photo()
+        photo.image = form.cleaned_data['image']
+        photo.save()
+        logger.debug('save model')
+            #if 'upload' in request.POST:
+        if 'upload' in request.POST:
+            #return self.get(request)
+            return redirect('CaptureVideo:test')
+        elif 'next' in request.POST:
+            return redirect('CaptureVideo:test')
+
 def processing(request):
     if request.method == 'GET':
         return render(request, 'CaptureVideo/processing.html')
@@ -53,46 +126,6 @@ def processing(request):
         some_long_duration_process(1,2)
         return redirect('CaptureVideo:test')
 
-
-
-
-####################### Local function
-
-def search_img_name(image_root, extension):
-    image_name = []
-    files = os.listdir(image_root)
-    for file in files:
-        index = re.search(extension, file)# 拡張子が，jpgのものを検出
-        if index:
-            image_name.append(file)
-    return image_name
-
-class StartProcessing(generic.CreateView):
-    model = Progress
-    fields = ()
-    template_name = 'CaptureVideo/processing.html'
-
-    def form_valid(self, form):
-        """
-        progress_instance = form.save()
-        p = Process(target=update, args=(progress_instance.pk,), daemon=True)
-        p.start()
-        """
-        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        image_root = os.path.join(BASE_DIR,'media','CaptureVideo','media')
-        image_name_set = search_img_name(image_root, '.jpg')
-        ImageTranspose(image_root, image_name_set[0])
-        return redirect('CaptureVideo:test')
-
-def ImageTranspose(image_root, image_name):
-    # 入力画像をグレースケールで読み込み
-    gray = cv2.imread(os.path.join(image_root,image_name), 0)
-    # 方法3
-    dst3 = cv2.Laplacian(gray, cv2.CV_32F, ksize=7)
-    # 結果を出力
-    cv2.imwrite(os.path.join(image_root,"output.jpg"), dst3)
-
-"""
 @background(queue='queue_name1', schedule=2)
 def some_long_duration_process(some_param1, some_param2):
     # back ground Process

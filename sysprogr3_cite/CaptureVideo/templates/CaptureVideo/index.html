@@ -8,17 +8,11 @@
     <link rel="stylesheet" href="{% static "CaptureVideo/css/style.css" %}">
   </head>
   <body>
-    <h1>Picture Send Form</h1>
-    <script language="javascript" src="{% static "All/js/environment_check.js" %}"></script>
-    <script>
-      checkBrowser();
-      checkOS();
-    </script>
+    <h1>Wellcom !!</h1>
 
     <form action="{% url 'CaptureVideo:index' %}" method="POST"  enctype="multipart/form-data">
         {% csrf_token %}
-        {{ form }}
-        <input type="submit" value="SUBMIT" />
+        <input type="submit" name="next"   value="NEXT" />
     </form>
 
     <!--

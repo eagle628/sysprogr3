@@ -1,2 +1,2 @@
 import django
-django.setup()
+#django.setup()

@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 import os
+import logging
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -41,7 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'CaptureVideo.apps.CapturevideoConfig',
-    'background_task',
+    #'background_task',
 ]
 
 MIDDLEWARE = [
@@ -136,3 +137,19 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 # https://qiita.com/narupo/items/e3dbdd5d030952d10661
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# For debugging
+if DEBUG:
+    # will output to your console
+    logging.basicConfig(
+        level = logging.DEBUG,
+        format = '%(asctime)s %(levelname)s %(message)s',
+    )
+else:
+    # will output to logging file
+    logging.basicConfig(
+        level = logging.DEBUG,
+        format = '%(asctime)s %(levelname)s %(message)s',
+        filename = '/my_log_file.log',
+        filemode = 'a'
+    )

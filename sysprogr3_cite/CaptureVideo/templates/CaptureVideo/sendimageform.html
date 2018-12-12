@@ -1,0 +1,25 @@
+{% extends 'CaptureVideo/base.html' %}
+{% load static %}
+
+{% block content %}
+  {% csrf_token %}
+  <h1>Picture Send Form</h1>
+  <script language="javascript" src="{% static "All/js/environment_check.js" %}"></script>
+  <script>
+    checkBrowser();
+    checkOS();
+  </script>
+
+  <form action="{% url 'CaptureVideo:sendimageform' %}" method="POST"  enctype="multipart/form-data">
+      {% csrf_token %}
+      {{ form1 }}
+      <input type="submit" name="upload" value="SUBMIT" />
+  </form>
+  {% if mode == True %}
+  <form action="{% url 'CaptureVideo:sendimageform' %}" method="POST"  enctype="multipart/form-data">
+      {% csrf_token %}
+      {{ form2 }}
+        <input type="submit" name="next"   value="NEXT" />
+  </form>
+  {% endif %}
+{% endblock %}
