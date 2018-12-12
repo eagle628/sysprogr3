@@ -1,0 +1,12 @@
+{% extends 'CaptureVideo/base.html' %}
+
+{% block content %}
+<meta http-equiv="refresh" content="5">
+{% if progress.num >= 100 %}
+  End Process
+{% else %}
+  <div class="progress">
+    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="{{ progress.num }}" aria-valuemin="0" aria-valuemax="100" style="width: {{ progress.num }}%"></div>
+  </div>
+{% endif %}
+{% endblock %}

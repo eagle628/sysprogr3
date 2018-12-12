@@ -1,0 +1,20 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>browserCamamera TEST</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="{% static  "CaptureVideo/css/style.css" %}">
+  </head>
+  <body>
+    <h1>Form Succeed !!</h1>
+    <h1>Why don't you start Process ?</h1>
+    <form action="{% url 'CaptureVideo:processing' %}" method="POST">
+        {% csrf_token %}
+        <!-- <input type="submit" name="StartProcessing" value="Start"> -->
+        <!-- <button type="submit">Start</button> -->
+        <button type="submit" class="btn btn-primary">処理の開始</button>
+    </form>
+  </body>
+</html>

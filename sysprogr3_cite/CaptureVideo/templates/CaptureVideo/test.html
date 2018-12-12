@@ -1,0 +1,21 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Test Expression</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="{% static  "CaptureVideo/css/style.css" %}">
+  </head>
+  <body>
+    <h1>Form Succeed !!</h1>
+    <img src= "../../../media/CaptureVideo/media/image.jpg" width=200><br>
+    <img src=" ../../../media/CaptureVideo/media/output.jpg" width=200>
+    <form action="{% url 'CaptureVideo:test' %}" method="POST">
+        {% csrf_token %}
+        <!-- <input type="submit" name="StartProcessing" value="Start"> -->
+        <!-- <button type="submit">Start</button> -->
+        <button type="submit" class="btn btn-primary">完了</button>
+    </form>
+  </body>
+</html>
