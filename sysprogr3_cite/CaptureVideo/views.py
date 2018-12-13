@@ -17,12 +17,12 @@ def index(request):
     if request.method == 'GET':
         return render(request, 'CaptureVideo/index.html')
     elif request.method == 'POST':
-        Next = SendImageForm()
-        return Next.get(request)
+        return redirect('CaptureVideo:sendimageform')
 
 class SendImageForm(View):
     template_name = 'CaptureVideo/sendimageform.html'
     mode = False
+    image_name_list = []
 
     def get(self, request):
         form1 = PhotoForm()
@@ -38,7 +38,8 @@ class SendImageForm(View):
             photo = Photo()
             photo.image = form.cleaned_data['image']
             photo.save()
-            logging.debug('save model')
+            self.image_name_list.append(photo.image.name)
+            logging.debug('upload to : '+photo.image.name)
             self.mode = True
             return self.get(request)
         elif 'next' in request.POST:
@@ -46,15 +47,18 @@ class SendImageForm(View):
 
 class StartProcessing(View):
     template_name = 'CaptureVideo/processing.html'
+    output_list = []
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request, *args):
         return render(request, self.template_name)
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
         BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        image_root = os.path.join(BASE_DIR,'media','CaptureVideo','media')
-        image_name_set = search_img_name(image_root, '.jpg')
-        ImageTranspose(image_root, image_name_set[0])
+        images = Photo.objects.all()
+        logging.debug(len(images))
+        for image in images:
+            self.output_list.append(ImageTranspose(os.path.join(BASE_DIR,'media'), images[0].image.name))
+        images.delete()
         return redirect('CaptureVideo:test')
 
 
@@ -87,8 +91,9 @@ def ImageTranspose(image_root, image_name):
     # 方法3
     dst3 = cv2.Laplacian(gray, cv2.CV_32F, ksize=7)
     # 結果を出力
-    cv2.imwrite(os.path.join(image_root,"output.jpg"), dst3)
-
+    output_path =os.path.join(image_root,'CaptureVideo','media',"output.jpg")
+    cv2.imwrite(output_path, dst3)
+    return output_path
 ###############################################################################
 
 
