@@ -69,7 +69,7 @@ if gpu_id >= 0:
 
 
 # ネットワークをClassifierで包んで、ロスの計算などをモデルに含める
-net = L.Classifier(net)
+net = L.Classifier(net, lossfun=F.softmax_cross_entropy, accfun==F.softmax_cross_entropy)
 
 # 最適化手法の選択
 optimizer = optimizers.SGD(lr=0.01).setup(net)

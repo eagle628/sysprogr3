@@ -9,8 +9,14 @@
   </head>
   <body>
     <h1>Form Succeed !!</h1>
-    <img src= "../../../media/CaptureVideo/media/image.jpg" width=200><br>
-    <img src=" ../../../media/CaptureVideo/media/output.jpg" width=200>
+    <h2>Input image</h2>
+    {% for image in Input %}
+      <img src= "{{ image.image.url}}" width=200><br>
+    {% endfor %}
+    <h2>Output image</h2>
+    {% for image in Output %}
+      <img src= "{{ image.image.url}}" width=200><br>
+    {% endfor %}
     <form action="{% url 'CaptureVideo:test' %}" method="POST">
         {% csrf_token %}
         <!-- <input type="submit" name="StartProcessing" value="Start"> -->

@@ -1,6 +1,7 @@
 import os
 import re
 import time
+import uuid
 from multiprocessing import Process
 
 from django.shortcuts import render, redirect, reverse, get_object_or_404
@@ -15,6 +16,8 @@ import logging
 
 def index(request):
     if request.method == 'GET':
+        image_set = Photo.objects.all()
+        image_set.delete()
         return render(request, 'CaptureVideo/index.html')
     elif request.method == 'POST':
         return redirect('CaptureVideo:sendimageform')
@@ -37,6 +40,7 @@ class SendImageForm(View):
 
             photo = Photo()
             photo.image = form.cleaned_data['image']
+            photo.stage = 'input'
             photo.save()
             self.image_name_list.append(photo.image.name)
             logging.debug('upload to : '+photo.image.name)
@@ -47,31 +51,35 @@ class SendImageForm(View):
 
 class StartProcessing(View):
     template_name = 'CaptureVideo/processing.html'
-    output_list = []
 
     def get(self, request, *args):
         return render(request, self.template_name)
 
     def post(self, request):
         BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        images = Photo.objects.all()
+        images = Photo.objects.filter(stage='input')
         logging.debug(len(images))
         for image in images:
-            self.output_list.append(ImageTranspose(os.path.join(BASE_DIR,'media'), images[0].image.name))
-        images.delete()
+            photo = Photo()
+            path = ImageTranspose(os.path.join(BASE_DIR,'media'), image.image.name)
+            photo.image = path
+            photo.stage = 'output'
+            photo.save()
         return redirect('CaptureVideo:test')
 
 
 def test(request):
     if request.method == 'GET':
-        return render(request,'CaptureVideo/test.html')
+        input_images = Photo.objects.all().filter(stage='input')
+        output_images = Photo.objects.all().filter(stage='output')
+        return render(request,'CaptureVideo/test.html',{'Input':input_images, 'Output':output_images})
     elif request.method == 'POST':
         # media clean
         BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        image_root = os.path.join(BASE_DIR,'media','CaptureVideo','media')
-        image_name_set = search_img_name(image_root, '.jpg')
-        for image_name in image_name_set :
-            os.remove(os.path.join(image_root,image_name))
+        image_set = Photo.objects.all()
+        for image in image_set :
+            logging.debug(image.image.url)
+            os.remove(os.path.join(BASE_DIR,'media',image.image.name))
         return redirect('http://google.com/')
 
 ####################### Local function
@@ -91,7 +99,8 @@ def ImageTranspose(image_root, image_name):
     # 方法3
     dst3 = cv2.Laplacian(gray, cv2.CV_32F, ksize=7)
     # 結果を出力
-    output_path =os.path.join(image_root,'CaptureVideo','media',"output.jpg")
+    name = str(uuid.uuid4()).replace('-', '')
+    output_path =os.path.join(image_root,'CaptureVideo','media',name+'.jpg')
     cv2.imwrite(output_path, dst3)
     return output_path
 ###############################################################################

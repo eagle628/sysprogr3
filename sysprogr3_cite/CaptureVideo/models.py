@@ -53,6 +53,7 @@ class Photo(models.Model):
         super(Photo, self).delete()
 
     image = models.ImageField(upload_to=get_image_path)
+    stage = models.CharField(max_length=200, default='')
 
 class Progress(models.Model):
     """Progress Model"""
