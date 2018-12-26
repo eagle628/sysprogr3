@@ -9,6 +9,8 @@ from django.views import generic, View
 from .forms import PhotoForm, PassForm
 from .models import Photo, Progress
 
+from . import ML_func
+
 #from background_task import background
 import cv2
 import numpy as np
@@ -22,7 +24,7 @@ def index(request):
     elif request.method == 'POST':
         if not request.session.session_key:
             request.session.create()
-        logging.debug(request.session.session_key)
+        logging.debug('Session ID : '+request.session.session_key)
         return redirect('CaptureVideo:sendimageform')
 
 class SendImageForm(View):
@@ -33,7 +35,7 @@ class SendImageForm(View):
     def get(self, request):
         form1 = PhotoForm()
         form2 = PassForm()
-        logging.debug(request.session.session_key)
+        logging.debug('Session ID : '+request.session.session_key)
         return render(request, self.template_name, {'form1': form1, 'form2':form2, 'mode':self.mode},)
 
     def post(self, request, *args):
@@ -63,16 +65,18 @@ class StartProcessing(View):
 
     def post(self, request):
         ID = request.session.session_key
+        logging.debug('Session ID : '+ID)
         BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         images = Photo.objects.filter(stage='input',member=ID)
-        logging.debug(len(images))
         for image in images:
-            photo = Photo()
-            path = ImageTranspose(os.path.join(BASE_DIR,'media'), image.image.name)
-            photo.image = path
-            photo.stage = 'output'
-            photo.member = ID
-            photo.save()
+            path_set = ML_func.preprocess(os.path.join(BASE_DIR,'media'), image.image.name)
+            logging.debug(path_set)
+            for path in path_set:
+                photo = Photo()
+                photo.image = path
+                photo.stage = 'output'
+                photo.member = ID
+                photo.save()
         return redirect('CaptureVideo:test')
 
 
