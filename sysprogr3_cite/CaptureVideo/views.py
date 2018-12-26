@@ -20,6 +20,9 @@ def index(request):
         image_set.delete()
         return render(request, 'CaptureVideo/index.html')
     elif request.method == 'POST':
+        if not request.session.session_key:
+            request.session.create()
+        logging.debug(request.session.session_key)
         return redirect('CaptureVideo:sendimageform')
 
 class SendImageForm(View):
@@ -30,6 +33,7 @@ class SendImageForm(View):
     def get(self, request):
         form1 = PhotoForm()
         form2 = PassForm()
+        logging.debug(request.session.session_key)
         return render(request, self.template_name, {'form1': form1, 'form2':form2, 'mode':self.mode},)
 
     def post(self, request, *args):
@@ -41,8 +45,10 @@ class SendImageForm(View):
             photo = Photo()
             photo.image = form.cleaned_data['image']
             photo.stage = 'input'
+            photo.member = request.session.session_key
             photo.save()
             self.image_name_list.append(photo.image.name)
+            logging.debug('session : '+photo.member)
             logging.debug('upload to : '+photo.image.name)
             self.mode = True
             return self.get(request)
@@ -56,31 +62,34 @@ class StartProcessing(View):
         return render(request, self.template_name)
 
     def post(self, request):
+        ID = request.session.session_key
         BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        images = Photo.objects.filter(stage='input')
+        images = Photo.objects.filter(stage='input',member=ID)
         logging.debug(len(images))
         for image in images:
             photo = Photo()
             path = ImageTranspose(os.path.join(BASE_DIR,'media'), image.image.name)
             photo.image = path
             photo.stage = 'output'
+            photo.member = ID
             photo.save()
         return redirect('CaptureVideo:test')
 
 
 def test(request):
+    ID = request.session.session_key
     if request.method == 'GET':
-        input_images = Photo.objects.all().filter(stage='input')
-        output_images = Photo.objects.all().filter(stage='output')
+        input_images = Photo.objects.filter(stage='input',member=ID)
+        output_images = Photo.objects.filter(stage='output',member=ID)
         return render(request,'CaptureVideo/test.html',{'Input':input_images, 'Output':output_images})
     elif request.method == 'POST':
         # media clean
         BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        image_set = Photo.objects.all()
+        image_set = Photo.objects.filter(member=ID)
         for image in image_set :
             logging.debug(image.image.url)
             os.remove(os.path.join(BASE_DIR,'media',image.image.name))
-        return redirect('http://google.com/')
+        return redirect('https://portal.nap.gsic.titech.ac.jp/portal.pl?GASF=CERTIFICATE,IG.GRID,IG.OTP&GAREASONCODE=-1&GARESOURCEID=resourcelistID2&GAURI=https://portal.nap.gsic.titech.ac.jp/GetAccess/ResourceList&Reason=-1&APPID=resourcelistID2&URI=https://portal.nap.gsic.titech.ac.jp/GetAccess/ResourceList')
 
 ####################### Local function
 
