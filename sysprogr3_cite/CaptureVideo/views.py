@@ -50,7 +50,7 @@ class SendImageForm(View):
             photo.member = request.session.session_key
             photo.save()
             self.image_name_list.append(photo.image.name)
-            logging.debug('session : '+photo.member)
+            logging.debug('Session ID : '+photo.member)
             logging.debug('upload to : '+photo.image.name)
             self.mode = True
             return self.get(request)
