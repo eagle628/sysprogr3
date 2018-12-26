@@ -25,6 +25,7 @@ def index(request):
         if not request.session.session_key:
             request.session.create()
         logging.debug('Session ID : '+request.session.session_key)
+        request.session['idx'] = 0
         return redirect('CaptureVideo:sendimageform')
 
 class SendImageForm(View):
@@ -48,6 +49,7 @@ class SendImageForm(View):
             photo.image = form.cleaned_data['image']
             photo.stage = 'input'
             photo.member = request.session.session_key
+            photo.idx = request.session['idx']
             photo.save()
             self.image_name_list.append(photo.image.name)
             logging.debug('Session ID : '+photo.member)
@@ -67,7 +69,7 @@ class StartProcessing(View):
         ID = request.session.session_key
         logging.debug('Session ID : '+ID)
         BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        images = Photo.objects.filter(stage='input',member=ID)
+        images = Photo.objects.filter(stage='input',member=ID,idx=request.session['idx'])
         for image in images:
             path_set = ML_func.preprocess(os.path.join(BASE_DIR,'media'), image.image.name)
             logging.debug(path_set)
@@ -76,24 +78,42 @@ class StartProcessing(View):
                 photo.image = path
                 photo.stage = 'output'
                 photo.member = ID
+                photo.idx = request.session['idx']
                 photo.save()
-        return redirect('CaptureVideo:test')
-
-
-def test(request):
-    ID = request.session.session_key
-    if request.method == 'GET':
-        input_images = Photo.objects.filter(stage='input',member=ID)
+        '''
         output_images = Photo.objects.filter(stage='output',member=ID)
-        return render(request,'CaptureVideo/test.html',{'Input':input_images, 'Output':output_images})
-    elif request.method == 'POST':
-        # media clean
-        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        image_set = Photo.objects.filter(member=ID)
-        for image in image_set :
-            logging.debug(image.image.url)
-            os.remove(os.path.join(BASE_DIR,'media',image.image.name))
-        return redirect('https://portal.nap.gsic.titech.ac.jp/portal.pl?GASF=CERTIFICATE,IG.GRID,IG.OTP&GAREASONCODE=-1&GARESOURCEID=resourcelistID2&GAURI=https://portal.nap.gsic.titech.ac.jp/GetAccess/ResourceList&Reason=-1&APPID=resourcelistID2&URI=https://portal.nap.gsic.titech.ac.jp/GetAccess/ResourceList')
+        path_list = []
+        for output in output_images:
+            path_list.append(output.image.name)
+        ML_func.est_locale(path_list)
+        '''
+        return redirect('CaptureVideo:result')
+
+
+class Result(View):
+    template_name = 'CaptureVideo/result.html'
+
+    def get(self, request, *args):
+        ID = request.session.session_key
+        input_images = Photo.objects.filter(stage='input',member=ID,idx=request.session['idx'])
+        output_images = Photo.objects.filter(stage='output',member=ID,idx=request.session['idx'])
+        return render(request,'CaptureVideo/result.html',{'Input':input_images, 'Output':output_images})
+
+    def post(self, request):
+        ID = request.session.session_key
+        if 'complete' in request.POST:
+            # media clean
+            BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            image_set = Photo.objects.filter(member=ID)
+            for image in image_set :
+                logging.debug(image.image.url)
+                os.remove(os.path.join(BASE_DIR,'media',image.image.name))
+            image_set.delete()
+            return redirect('https://portal.nap.gsic.titech.ac.jp/portal.pl?GASF=CERTIFICATE,IG.GRID,IG.OTP&GAREASONCODE=-1&GARESOURCEID=resourcelistID2&GAURI=https://portal.nap.gsic.titech.ac.jp/GetAccess/ResourceList&Reason=-1&APPID=resourcelistID2&URI=https://portal.nap.gsic.titech.ac.jp/GetAccess/ResourceList')
+        elif 'again' in request.POST:
+            request.session['idx'] = request.session['idx'] + 1
+            return redirect('CaptureVideo:sendimageform')
+
 
 ####################### Local function
 

@@ -53,8 +53,9 @@ class Photo(models.Model):
         super(Photo, self).delete()
 
     image = models.ImageField(upload_to=get_image_path)
-    stage = models.CharField(max_length=200, default='')
-    member = models.CharField(max_length=200, default='')
+    stage = models.CharField(max_length=200, default='') # input or output
+    member = models.CharField(max_length=200, default='') # session id
+    idx = models.PositiveSmallIntegerField(default=0)
 
 class Progress(models.Model):
     """Progress Model"""
