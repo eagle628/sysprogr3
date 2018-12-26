@@ -1,0 +1,21 @@
+{% extends 'CaptureVideo/base.html' %}
+{% load static %}
+
+{% block content %}
+<h1>Result</h1>
+<h2>Input image</h2>
+{% for image in Input %}
+  <img src= "{{ image.image.url}}" width=200><br>
+{% endfor %}
+<h2>Output image</h2>
+{% for image in Output %}
+  <img src= "{{ image.image.url}}" width=200><br>
+{% endfor %}
+<form action="{% url 'CaptureVideo:result' %}" method="POST">
+    {% csrf_token %}
+    <!-- <input type="submit" name="StartProcessing" value="Start"> -->
+    <!-- <button type="submit">Start</button> -->
+    <button type="submit" name='complete' class="btn btn-primary">Complete !!</button>
+    <button type="submit" name='again' class="btn btn-primary">Try Again</button>
+</form>
+{% endblock %}

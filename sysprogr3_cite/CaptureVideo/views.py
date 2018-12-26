@@ -25,7 +25,8 @@ def index(request):
         if not request.session.session_key:
             request.session.create()
         logging.debug('Session ID : '+request.session.session_key)
-        request.session['idx'] = 0
+        if 'idx' not in request.session:
+            request.session['idx'] = 0
         return redirect('CaptureVideo:sendimageform')
 
 class SendImageForm(View):
