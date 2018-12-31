@@ -45,7 +45,7 @@ def delete_previous_file(function):
 
 class Photo(models.Model):
     @delete_previous_file
-    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=True):
         super(Photo, self).save()
 
     @delete_previous_file
@@ -56,6 +56,7 @@ class Photo(models.Model):
     stage = models.CharField(max_length=200, default='') # input or output
     member = models.CharField(max_length=200, default='') # session id
     idx = models.PositiveSmallIntegerField(default=0)
+    result = models.BinaryField(null=True)
 
 class Progress(models.Model):
     """Progress Model"""

@@ -36,61 +36,64 @@ class MLP(chainer.Chain):
         return self.l3(h2)
 
 #############################################################
-# set random seed
-reset_seed(0)
-gpu_id = -1
+if __name__ == "__main__":
+    # set random seed
+    reset_seed(0)
+    gpu_id = -1
 
-# load datasets
-train_val, test = mnist.get_mnist(withlabel=True, ndim=1)
+    # load datasets
+    train_val, test = mnist.get_mnist(withlabel=True, ndim=1)
 
-# extract single data
-#x, t = train_val[0]  # 0番目の (data, label) を取り出す
-#plt.imshow(x.reshape(28, 28), cmap='gray')
-#plt.axis('off')
-#plt.show()
-#print('label:', t)
+    # extract single data
+    #x, t = train_val[0]  # 0番目の (data, label) を取り出す
+    #plt.imshow(x.reshape(28, 28), cmap='gray')
+    #plt.axis('off')
+    #plt.show()
+    #print('label:', t)
 
-# set train&valid data
-train, valid = split_dataset_random(train_val, 50000, seed=0)
+    # set train&valid data
+    train, valid = split_dataset_random(train_val, 50000, seed=0)
 
-batchsize = 128
+    batchsize = 128
 
-train_iter = iterators.SerialIterator(train, batchsize)
-valid_iter = iterators.SerialIterator(
-    valid, batchsize, repeat=False, shuffle=False)
-test_iter = iterators.SerialIterator(
-    test, batchsize, repeat=False, shuffle=False)
+    train_iter = iterators.SerialIterator(train, batchsize)
+    valid_iter = iterators.SerialIterator(
+        valid, batchsize, repeat=False, shuffle=False)
+    test_iter = iterators.SerialIterator(
+        test, batchsize, repeat=False, shuffle=False)
 
-# set network
-net = MLP()
+    # set network
+    net = MLP()
 
-if gpu_id >= 0:
-    net.to_gpu(gpu_id)
+    if gpu_id >= 0:
+        net.to_gpu(gpu_id)
 
 
-# ネットワークをClassifierで包んで、ロスの計算などをモデルに含める
-net = L.Classifier(net, lossfun=F.softmax_cross_entropy, accfun==F.softmax_cross_entropy)
+    # ネットワークをClassifierで包んで、ロスの計算などをモデルに含める
+    net = L.Classifier(net, lossfun=F.softmax_cross_entropy, accfun=F.accuracy)
 
-# 最適化手法の選択
-optimizer = optimizers.SGD(lr=0.01).setup(net)
+    # 最適化手法の選択
+    optimizer = optimizers.SGD(lr=0.01).setup(net)
 
-# UpdaterにIteratorとOptimizerを渡す
-updater = training.StandardUpdater(train_iter, optimizer, device=gpu_id)
+    # UpdaterにIteratorとOptimizerを渡す
+    updater = training.StandardUpdater(train_iter, optimizer, device=gpu_id)
 
-max_epoch = 10
+    max_epoch = 10
 
-# TrainerにUpdaterを渡す
-trainer = training.Trainer(
-    updater, (max_epoch, 'epoch'), out='mnist_result')
+    # TrainerにUpdaterを渡す
+    trainer = training.Trainer(
+        updater, (max_epoch, 'epoch'), out='mnist_result')
 
-trainer.extend(extensions.LogReport())
-trainer.extend(extensions.snapshot(filename='snapshot_epoch-{.updater.epoch}'))
-trainer.extend(extensions.Evaluator(valid_iter, net, device=gpu_id), name='val')
-trainer.extend(extensions.PrintReport(['epoch', 'main/loss', 'main/accuracy', 'val/main/loss', 'val/main/accuracy', 'l1/W/data/std', 'elapsed_time']))
-trainer.extend(extensions.ParameterStatistics(net.predictor.l1, {'std': np.std}))
-trainer.extend(extensions.PlotReport(['l1/W/data/std'], x_key='epoch', file_name='std.png'))
-trainer.extend(extensions.PlotReport(['main/loss', 'val/main/loss'], x_key='epoch', file_name='loss.png'))
-trainer.extend(extensions.PlotReport(['main/accuracy', 'val/main/accuracy'], x_key='epoch', file_name='accuracy.png'))
-trainer.extend(extensions.dump_graph('main/loss'))
+    trainer.extend(extensions.LogReport())
+    trainer.extend(extensions.snapshot(filename='snapshot_epoch-{.updater.epoch}'))
+    trainer.extend(extensions.Evaluator(valid_iter, net, device=gpu_id), name='val')
+    trainer.extend(extensions.PrintReport(['epoch', 'main/loss', 'main/accuracy', 'val/main/loss', 'val/main/accuracy', 'l1/W/data/std', 'elapsed_time']))
+    trainer.extend(extensions.ParameterStatistics(net.predictor.l1, {'std': np.std}))
+    trainer.extend(extensions.PlotReport(['l1/W/data/std'], x_key='epoch', file_name='std.png'))
+    trainer.extend(extensions.PlotReport(['main/loss', 'val/main/loss'], x_key='epoch', file_name='loss.png'))
+    trainer.extend(extensions.PlotReport(['main/accuracy', 'val/main/accuracy'], x_key='epoch', file_name='accuracy.png'))
+    trainer.extend(extensions.dump_graph('main/loss'))
 
-trainer.run()
+    trainer.run()
+
+    chainer.serializers.save_npz('my_mnist.npz', net)

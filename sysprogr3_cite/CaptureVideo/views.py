@@ -72,7 +72,7 @@ class StartProcessing(View):
         BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         images = Photo.objects.filter(stage='input',member=ID,idx=request.session['idx'])
         for image in images:
-            path_set = ML_func.preprocess(os.path.join(BASE_DIR,'media'), image.image.name)
+            path_set = ML_func.preprocess(os.path.join(BASE_DIR,'media'), image.image.name, crop_size = 28)
             logging.debug(path_set)
             for path in path_set:
                 photo = Photo()
@@ -80,14 +80,8 @@ class StartProcessing(View):
                 photo.stage = 'output'
                 photo.member = ID
                 photo.idx = request.session['idx']
+                photo.result = ML_func.est_locale(path)
                 photo.save()
-        '''
-        output_images = Photo.objects.filter(stage='output',member=ID)
-        path_list = []
-        for output in output_images:
-            path_list.append(output.image.name)
-        ML_func.est_locale(path_list)
-        '''
         return redirect('CaptureVideo:result')
 
 
@@ -98,6 +92,8 @@ class Result(View):
         ID = request.session.session_key
         input_images = Photo.objects.filter(stage='input',member=ID,idx=request.session['idx'])
         output_images = Photo.objects.filter(stage='output',member=ID,idx=request.session['idx'])
+        for output in output_images :
+            logging.debug(np.frombuffer(output.result, dtype=np.float32))
         return render(request,'CaptureVideo/result.html',{'Input':input_images, 'Output':output_images})
 
     def post(self, request):

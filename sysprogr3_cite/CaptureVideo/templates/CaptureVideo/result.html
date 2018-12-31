@@ -10,6 +10,7 @@
 <h2>Output image</h2>
 {% for image in Output %}
   <img src= "{{ image.image.url}}" width=200><br>
+  "{{ image.result }}"<br>
 {% endfor %}
 <form action="{% url 'CaptureVideo:result' %}" method="POST">
     {% csrf_token %}

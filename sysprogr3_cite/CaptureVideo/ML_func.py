@@ -9,6 +9,9 @@ import chainer
 import chainer.links as L
 import chainer.functions as F
 from chainer import serializers
+from chainer.cuda import to_cpu
+
+import logging
 
 # preprocess  fucntion
 def preprocess(root_path, image_name, decimate_rate = 0, crop_number = 3, crop_size = 1000, resize_scale = 1, extension='.jpg'):
@@ -33,14 +36,41 @@ def preprocess(root_path, image_name, decimate_rate = 0, crop_number = 3, crop_s
 
     return preprocessed_image_name
 
-def est_locale(image_path_set, gpu_id=0):
-    net = DeepCNN(3)
-    serializers.load_npz(r'EST.model', net, path='.')
+def est_locale(image_path, gpu_id=-1):
+    #net = DeepCNN(3)
+    net = MLP()
+    chainer.serializers.load_npz(
+        os.path.join(os.path.dirname(__file__),'ML_model/snapshot_epoch-10'),
+        net, path='updater/model:main/predictor/')
     if gpu_id >= 0:
-        infer_net.to_gpu(gpu_id)
-    dataset = chainer.datasets.ImageDataset(image_path_set)
+        net.to_gpu(gpu_id)
+    logging.debug('Start ML Processing')
+    dataset = chainer.datasets.ImageDataset([image_path])
+    with chainer.using_config('train', False), chainer.using_config('enable_backprop', False):
+        result = net(dataset[0])
+    result = to_cpu(result.array)
+    result = chainer.functions.softmax(result)
+    result = result.data
+    result = result[0].tobytes()
+    logging.debug('End ML Processing')
+    return result
 
 # network definition
+class MLP(chainer.Chain):
+
+    def __init__(self, n_mid_units=100, n_out=10):
+        super(MLP, self).__init__()
+
+        with self.init_scope():
+            self.l1 = L.Linear(None, n_mid_units)
+            self.l2 = L.Linear(n_mid_units, n_mid_units)
+            self.l3 = L.Linear(n_mid_units, n_out)
+
+    def __call__(self, x):
+        h1 = F.relu(self.l1(x))
+        h2 = F.relu(self.l2(h1))
+        return self.l3(h2)
+
 class DeepCNN(chainer.ChainList):
 
     def __init__(self, n_output):
