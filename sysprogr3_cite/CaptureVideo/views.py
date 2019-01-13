@@ -6,7 +6,7 @@ from multiprocessing import Process
 
 from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.views import generic, View
-from .forms import PhotoForm, PassForm
+from .forms import PhotoForm, PassForm, SerachForm
 from .models import Photo, Progress
 
 from . import ML_func
@@ -92,9 +92,32 @@ class Result(View):
         ID = request.session.session_key
         input_images = Photo.objects.filter(stage='input',member=ID,idx=request.session['idx'])
         output_images = Photo.objects.filter(stage='output',member=ID,idx=request.session['idx'])
+        result = []
         for output in output_images :
+            result.append(np.argmax(np.frombuffer(output.result, dtype=np.float32)))
             logging.debug(np.frombuffer(output.result, dtype=np.float32))
-        return render(request,'CaptureVideo/result.html',{'Input':input_images, 'Output':output_images})
+        result = np.unique(result)
+        return render(request,self.template_name,{'Input':input_images, 'Output':output_images, 'Result':result, 'Form':SerachForm()})
+
+    def post(self, request, *args):
+        ID = request.session.session_key
+        if 'complete' in request.POST:
+            form = SerachForm(self.request.POST)
+            if not form.is_valid():
+                raise ValueError('invalid form')
+                return redirect('CaptureVideo:result')
+            #request.session['start'] = form.cleaned_data['start'] # 保持形式が数字ではない
+            #request.session['end'] = form.cleaned_data['end'] # 保持形式が数字ではない
+            return redirect('CaptureVideo:tree')
+        elif 'again' in request.POST:
+            request.session['idx'] = request.session['idx'] + 1
+            return redirect('CaptureVideo:sendimageform')
+
+class Tree(View):
+    template_name = 'CaptureVideo/tree.html'
+
+    def get(self, request, *args):
+        return render(request,self.template_name)
 
     def post(self, request):
         ID = request.session.session_key
@@ -107,11 +130,6 @@ class Result(View):
                 os.remove(os.path.join(BASE_DIR,'media',image.image.name))
             image_set.delete()
             return redirect('https://portal.nap.gsic.titech.ac.jp/portal.pl?GASF=CERTIFICATE,IG.GRID,IG.OTP&GAREASONCODE=-1&GARESOURCEID=resourcelistID2&GAURI=https://portal.nap.gsic.titech.ac.jp/GetAccess/ResourceList&Reason=-1&APPID=resourcelistID2&URI=https://portal.nap.gsic.titech.ac.jp/GetAccess/ResourceList')
-        elif 'again' in request.POST:
-            request.session['idx'] = request.session['idx'] + 1
-            return redirect('CaptureVideo:sendimageform')
-
-
 ####################### Local function
 
 def search_img_name(image_root, extension):
