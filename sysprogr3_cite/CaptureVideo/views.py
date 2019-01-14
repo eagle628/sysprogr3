@@ -10,6 +10,7 @@ from .forms import PhotoForm, PassForm, SerachForm
 from .models import Photo, Progress
 
 from . import ML_func
+from . import SearchDirection
 
 #from background_task import background
 import cv2
@@ -106,8 +107,13 @@ class Result(View):
             if not form.is_valid():
                 raise ValueError('invalid form')
                 return redirect('CaptureVideo:result')
-            #request.session['start'] = form.cleaned_data['start'] # 保持形式が数字ではない
-            #request.session['end'] = form.cleaned_data['end'] # 保持形式が数字ではない
+            #start = form.cleaned_data['start']
+            start_idx = request.POST['start']
+            end_idx = request.POST['end']
+            logging.debug('start point : ' + start_idx)
+            logging.debug('end point : ' + end_idx)
+            request.session['start_idx'] = int(start_idx)
+            request.session['end_idx'] = int(end_idx)
             return redirect('CaptureVideo:tree')
         elif 'again' in request.POST:
             request.session['idx'] = request.session['idx'] + 1
@@ -117,7 +123,9 @@ class Tree(View):
     template_name = 'CaptureVideo/tree.html'
 
     def get(self, request, *args):
-        return render(request,self.template_name)
+        logging.debug(type(request.session['start_idx']))
+        tree = SearchDirection.search_tree(request.session['start_idx'], request.session['end_idx'])
+        return render(request,self.template_name,{'Tree':tree})
 
     def post(self, request):
         ID = request.session.session_key

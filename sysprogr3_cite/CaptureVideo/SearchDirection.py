@@ -17,13 +17,16 @@ def search_tree(start, end):
                     [ 0, 0, 0, 0, 0, 0, 0, 0,10, 0,10, 0],
                     ])
 
-    (dict, pre_mat) = shortest_path(Graph,directed=False,return_predecessors=True)
-    tree = [end]
-    while True:
-        tree.append(pre_mat[start][tree[-1]])
-        if tree[-1] == start:
-            break
-    tree = tree[::-1]
+    if start == end :
+        tree = [start]
+    else:
+        (dict, pre_mat) = shortest_path(Graph,directed=False,return_predecessors=True)
+        tree = [end]
+        while True:
+            tree.append(pre_mat[start][tree[-1]])
+            if tree[-1] == start:
+                break
+        tree = tree[::-1]
     return tree
 
 if __name__ == '__main__':

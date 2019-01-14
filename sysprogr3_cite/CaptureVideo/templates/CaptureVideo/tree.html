@@ -3,6 +3,7 @@
 
 {% block content %}
 <h1>Tree</h1>
+{{ Tree }}
 <form action="{% url 'CaptureVideo:tree' %}" method="POST">
     {% csrf_token %}
     <button type="submit" name='complete' class="btn btn-primary">Complete !! </button>
