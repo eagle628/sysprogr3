@@ -73,7 +73,7 @@ class StartProcessing(View):
         BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         images = Photo.objects.filter(stage='input',member=ID,idx=request.session['idx'])
         for image in images:
-            path_set = ML_func.preprocess(os.path.join(BASE_DIR,'media'), image.image.name, crop_size = 28)
+            path_set = ML_func.preprocess(os.path.join(BASE_DIR,'media'), image.image.name, crop_size = 1000)
             logging.debug(path_set)
             for path in path_set:
                 photo = Photo()

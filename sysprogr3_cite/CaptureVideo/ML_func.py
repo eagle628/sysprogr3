@@ -37,18 +37,21 @@ def preprocess(root_path, image_name, decimate_rate = 0, crop_number = 3, crop_s
     return preprocessed_image_name
 
 def est_locale(image_path, gpu_id=-1):
-    #net = DeepCNN(3)
-    net = MLP()
+    net = DeepCNN(3)
+    net = L.Classifier(net)
+    #net = MLP()
     chainer.serializers.load_npz(
-        os.path.join(os.path.dirname(__file__),'ML_model/snapshot_epoch-10'),
-        net, path='updater/model:main/predictor/')
+        os.path.join(os.path.dirname(__file__),'ML_model/snapshot_epoch-20'),
+        net, path='updater/model:main/')
     if gpu_id >= 0:
         net.to_gpu(gpu_id)
     logging.debug('Start ML Processing')
     dataset = chainer.datasets.ImageDataset([image_path])
+    dataset = dataset[0]
+    net.to_cpu()
     with chainer.using_config('train', False), chainer.using_config('enable_backprop', False):
-        result = net(dataset[0])
-    result = to_cpu(result.array)
+        result = net.predictor(dataset[None, ...]).data
+    #result = to_cpu(result.array)
     result = chainer.functions.softmax(result)
     result = result.data
     result = result[0].tobytes()
