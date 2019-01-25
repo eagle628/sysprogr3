@@ -1,5 +1,6 @@
 # from
 # https://qiita.com/narupo/items/e3dbdd5d030952d10661
+from django import forms
 
 LOCALE_CHOICES = [
     (0,'bf-0'),
@@ -56,8 +57,7 @@ LOCALE_CHOICES = [
     (12+39,'3f-12'),
 ]
 
-
-from django import forms
+confirm = [(1,'yes'),(0,'no')]
 
 class PhotoForm(forms.Form):
     image = forms.ImageField()
@@ -68,3 +68,11 @@ class PassForm(forms.Form):
 class SerachForm(forms.Form):
     start = forms.ChoiceField(label='Start Point', choices=LOCALE_CHOICES, initial=0)
     end = forms.ChoiceField(label='End Point', choices=LOCALE_CHOICES, initial=0)
+
+class ConfirmForm(forms.Form):
+    field = forms.ChoiceField(
+        label='Correct',
+        widget=forms.RadioSelect,
+        choices=confirm,
+        required=True,
+    )

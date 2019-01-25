@@ -1,0 +1,12 @@
+{% extends 'CaptureVideo/base.html' %}
+{% load static %}
+
+{% block content %}
+<h1>Confirm</h1>
+<h2>Is the estimated place correct ?</h2>
+<form action="{% url 'CaptureVideo:confirm' %}" method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ Confirm }}
+    <button type="submit" name='complete'>Thank You !! </button>
+</form>
+{% endblock %}

@@ -6,7 +6,7 @@ from multiprocessing import Process
 
 from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.views import generic, View
-from .forms import PhotoForm, PassForm, SerachForm
+from .forms import PhotoForm, PassForm, SerachForm, ConfirmForm
 from .models import Photo, Progress
 
 from . import ML_func
@@ -126,6 +126,18 @@ class Tree(View):
         logging.debug(type(request.session['start_idx']))
         tree = SearchDirection.search_tree(request.session['start_idx'], request.session['end_idx'])
         return render(request,self.template_name,{'Tree':tree})
+
+    def post(self, request):
+        ID = request.session.session_key
+        if 'next' in request.POST:
+            return redirect('CaptureVideo:confirm')
+
+class Confirm(View):
+    template_name = 'CaptureVideo/confirm.html'
+
+    def get(self, request, *args):
+        logging.debug(type(request.session['start_idx']))
+        return render(request,self.template_name,{'Confirm':ConfirmForm()})
 
     def post(self, request):
         ID = request.session.session_key
