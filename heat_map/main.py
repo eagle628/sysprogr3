@@ -3,7 +3,7 @@ import cv2
 from colormap import Heatmapimage
 
 
-heatmap1 = Heatmapimage('1f.jpg') #オリジナル画像を指定してインスタンス生成
+heatmap1 = Heatmapimage('1f.jpg',20) #オリジナル画像を指定してインスタンス生成
 
 heatmap1.add_gaussian([551,336],[800,6000],1) #描画中心座標，xy分散,重みを指定して，ガウシアン（山）を書き込み
 heatmap1.add_gaussian([311,336],[800,6000],0.5)
