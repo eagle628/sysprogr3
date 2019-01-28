@@ -9,8 +9,7 @@ from django.views import generic, View
 from .forms import PhotoForm, PassForm, SerachForm, ConfirmForm
 from .models import Photo, Progress
 
-from . import ML_func
-from . import SearchDirection
+from .CV_Module import ML_func, SearchDirection
 
 import chainer.functions as F
 
