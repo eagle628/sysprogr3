@@ -53,9 +53,9 @@ def est_locale(image_path, gpu_id=-1):
     net.to_cpu()
     with chainer.using_config('train', False), chainer.using_config('enable_backprop', False):
         result = net.predictor(dataset[None, ...]).data
-    #result = to_cpu(result.array)
-    result = chainer.functions.softmax(result)
-    result = result.data
+    logging.debug(result)
+    #result = chainer.functions.softmax(result)
+    #result = result.data
     result = result[0].tobytes()
     logging.debug('End ML Processing')
     return result

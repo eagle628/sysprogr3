@@ -12,6 +12,8 @@ from .models import Photo, Progress
 from . import ML_func
 from . import SearchDirection
 
+import chainer.functions as F
+
 #from background_task import background
 import cv2
 import numpy as np
@@ -93,11 +95,16 @@ class Result(View):
         ID = request.session.session_key
         input_images = Photo.objects.filter(stage='input',member=ID,idx=request.session['idx'])
         output_images = Photo.objects.filter(stage='output',member=ID,idx=request.session['idx'])
-        result = []
+        Flag = False
         for output in output_images :
-            result.append(np.argmax(np.frombuffer(output.result, dtype=np.float32)))
-            logging.debug(np.frombuffer(output.result, dtype=np.float32))
-        result = np.unique(result)
+            if Flag is False :
+                result = np.array([np.frombuffer(output.result, dtype=np.float32)])
+                Flag = True
+            else :
+                result += np.array([np.frombuffer(output.result, dtype=np.float32)])
+        logging.debug('result : ')
+        logging.debug(result)
+        result = np.argmax(F.softmax(result).data)
         return render(request,self.template_name,{'Input':input_images, 'Output':output_images, 'Result':result, 'Form':SerachForm()})
 
     def post(self, request, *args):
