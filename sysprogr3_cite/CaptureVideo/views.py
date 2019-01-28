@@ -9,7 +9,7 @@ from django.views import generic, View
 from .forms import PhotoForm, PassForm, SerachForm, ConfirmForm
 from .models import Photo, Progress
 
-from .CV_Module import ML_func, SearchDirection
+from .CV_Module import ML_func, SearchDirection, colormap
 
 import chainer.functions as F
 
@@ -75,7 +75,6 @@ class StartProcessing(View):
         images = Photo.objects.filter(stage='input',member=ID,idx=request.session['idx'])
         for image in images:
             path_set = ML_func.preprocess(os.path.join(BASE_DIR,'media'), image.image.name, crop_size = 1000)
-            logging.debug(path_set)
             for path in path_set:
                 photo = Photo()
                 photo.image = path
@@ -104,7 +103,59 @@ class Result(View):
         logging.debug('result : ')
         logging.debug(result)
         result = np.argmax(F.softmax(result).data)
-        return render(request,self.template_name,{'Input':input_images, 'Output':output_images, 'Result':result, 'Form':SerachForm()})
+        # make heatmap
+        test_result = (0.2*np.ones((1,2))).tolist()[0]
+        path = os.path.dirname(os.path.abspath(__file__))
+        MEDIA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),'media','CaptureVideo','media')
+
+        logging.debug('make HeatMap FB1')
+        FB1 = colormap.Heatmapimage(os.path.join(path,'CV_Module','Map_Honkan','bf_all.jpg'))
+        for itr in range(0,len(test_result)) :
+            FB1.add_gaussian(itr, test_result[itr])
+        photo = Photo()
+        photo.image = FB1.export_heatmap(MEDIA_DIR)
+        photo.stage = 'HeatMap'
+        photo.member = ID
+        photo.idx = request.session['idx']
+        photo.save()
+
+        logging.debug('make HeatMap F1')
+        F1 = colormap.Heatmapimage(os.path.join(path,'CV_Module','Map_Honkan','1f_all.jpg'))
+        for itr in range(0,len(test_result)) :
+            F1.add_gaussian(itr, test_result[itr])
+        photo = Photo()
+        photo.image = F1.export_heatmap(MEDIA_DIR)
+        photo.stage = 'HeatMap'
+        photo.member = ID
+        photo.idx = request.session['idx']
+        photo.save()
+
+        logging.debug('make HeatMap F2')
+        F2 = colormap.Heatmapimage(os.path.join(path,'CV_Module','Map_Honkan','2f_all.jpg'))
+        for itr in range(0,len(test_result)) :
+            F2.add_gaussian(itr, test_result[itr])
+        photo = Photo()
+        photo.image = F2.export_heatmap(MEDIA_DIR)
+        photo.stage = 'HeatMap'
+        photo.member = ID
+        photo.idx = request.session['idx']
+        photo.save()
+
+        logging.debug('make HeatMap F3')
+        F3 = colormap.Heatmapimage(os.path.join(path,'CV_Module','Map_Honkan','3f_all.jpg'))
+        for itr in range(0,len(test_result)) :
+            F3.add_gaussian(itr, test_result[itr])
+        photo = Photo()
+        photo.image = F3.export_heatmap(MEDIA_DIR)
+        photo.stage = 'HeatMap'
+        photo.member = ID
+        photo.idx = request.session['idx']
+        photo.save()
+
+        # Result Heatmap
+        heatmap_images = Photo.objects.filter(stage='HeatMap',member=ID,idx=request.session['idx'])
+
+        return render(request,self.template_name,{'Input':input_images, 'Output':output_images, 'Result':heatmap_images, 'Form':SerachForm()})
 
     def post(self, request, *args):
         ID = request.session.session_key

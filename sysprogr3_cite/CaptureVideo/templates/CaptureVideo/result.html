@@ -12,7 +12,9 @@
   <img src= "{{ image.image.url}}" width=200><br>
 {% endfor %}
 <h2>Result<h2>
-  {{ Result }}
+{% for image in Result %}
+  <img src= "{{ image.image.url}}" width=200><br>
+{% endfor %}
 <h2>Next<h2>
 <h3>Try Again<h3>
 <form action="{% url 'CaptureVideo:result' %}" method="POST">
