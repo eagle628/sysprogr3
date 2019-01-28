@@ -22,6 +22,8 @@ def preprocess(root_path, image_name, decimate_rate = 0, crop_number = 3, crop_s
         logging.debug(image.shape)
         if image.shape[0] < image.shape[1]:
             image = image.transpose(1,0,2)
+        if image.shape[0] > 1920:
+            image = cv2.resize(image,(1080,1920))
         logging.debug(image.shape)
         for i in range(crop_number) :
             x = random.randint(0, 1920 - crop_size)
