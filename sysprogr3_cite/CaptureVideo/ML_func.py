@@ -28,10 +28,10 @@ def preprocess(root_path, image_name, decimate_rate = 0, crop_number = 3, crop_s
             y = random.randint(0, 1080 - crop_size)
             cropped_image = image[x:x+crop_size,y:y+crop_size]
             logging.debug(cropped_image.shape)
-            #resized_image = cv2.resize(cropped_image,(int(round(cropped_image.shape[1]/resize_scale)),int(round(cropped_image.shape[0]/resize_scale))))
+            resized_image = cv2.resize(cropped_image,(int(round(cropped_image.shape[1]/resize_scale)),int(round(cropped_image.shape[0]/resize_scale))))
 
             preprocessed_image_name.append(os.path.join(root_path, os.path.splitext(image_name)[0]) + '_' +str(i) + extension)
-            cv2.imwrite(preprocessed_image_name[-1], cropped_image)
+            cv2.imwrite(preprocessed_image_name[-1], resized_image)
             logging.debug('---------------**WRITE IMAGE**---------------')
 
     return preprocessed_image_name
