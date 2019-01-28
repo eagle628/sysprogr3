@@ -59,6 +59,8 @@ LOCALE_CHOICES = [
 
 confirm = [(1,'yes'),(0,'no')]
 
+# choicefieldの数字(int)は，formで送信されるとstrに変化する．
+
 class PhotoForm(forms.Form):
     image = forms.ImageField()
 
@@ -70,7 +72,7 @@ class SerachForm(forms.Form):
     end = forms.ChoiceField(label='End Point', choices=LOCALE_CHOICES, initial=0)
 
 class ConfirmForm(forms.Form):
-    field = forms.ChoiceField(
+    answer = forms.ChoiceField(
         label='Correct',
         widget=forms.RadioSelect,
         choices=confirm,

@@ -130,7 +130,6 @@ class Tree(View):
     template_name = 'CaptureVideo/tree.html'
 
     def get(self, request, *args):
-        logging.debug(type(request.session['start_idx']))
         tree = SearchDirection.search_tree(request.session['start_idx'], request.session['end_idx'])
         return render(request,self.template_name,{'Tree':tree})
 
@@ -144,11 +143,16 @@ class Confirm(View):
 
     def get(self, request, *args):
         logging.debug(type(request.session['start_idx']))
-        return render(request,self.template_name,{'Confirm':ConfirmForm()})
+        return render(request,self.template_name,{'Confirm':ConfirmForm(initial={'answer': 0})})
 
     def post(self, request):
         ID = request.session.session_key
         if 'complete' in request.POST:
+            logging.debug(request.POST['answer'])
+            if request.POST['answer'] == '1':
+                logging.debug('Save Correct data')
+            elif request.POST['answer'] == '0':
+                logging.debug('Delete Incorrect data')
             # media clean
             BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             image_set = Photo.objects.filter(member=ID)
