@@ -4,19 +4,40 @@ import cv2
 from enum import Enum
 
 class Region:
-    bf00 = [1182,1472]
-    bf01 = [582,1472]
-    bf02 = [1782,1472]
-    bf03 = [376,1172]
-    bf04 = []
-    bf05 = []
-    bf06 = []
-    bf07 = []
-    bf08 = []
-    bf09 = []
-    bf10 = []
-    bf11 = []
-    bf12 = []
+    Hbf00 = [296,364]
+    Hbf01 = [158,368]
+    Hbf02 = [448,368]
+    Hbf03 = [94,302]
+    Hbf04 = [94,156]
+    Hbf05 = [206,302]
+    Hbf06 = [206,156]
+    Hbf07 = [385,302]
+    Hbf08 = [385,156]
+    Hbf09 = [496,302]
+    Hbf10 = [496,156]
+    Hbf11 = [160,106]
+    Hbf12 = [434,106]
+
+    H1f00 = [296,364]
+    H1f01 = [158,368]
+    H1f02 = [448,368]
+    H1f03 = [94,302]
+    H1f04 = [94,156]
+    H1f05 = [206,302]
+    H1f06 = [206,156]
+    H1f07 = [385,302]
+    H1f08 = [385,156]
+    H1f09 = [496,302]
+    H1f10 = [496,156]
+    H1f11 = [160,106]
+    H1f12 = [434,106]
+
+    H2f00 = [296,364]
+    H2f01 = [158,368]
+    H2f02 = [448,368]
+    H2f03 = [94,302]
+    H2f04 = [94,156]
+    H2f05 = [206,302]
 
 class Heatmapimage : 
 
@@ -51,17 +72,17 @@ class Heatmapimage :
         Z = self.__gaussian_2d_matrix(pos,var)
         Z = (Z * 255 * weight) / np.amax(Z)   
         self.color_weight[:,:,0] = self.color_weight[:,:,0] + Z
-        self.color_weight = (self.color_weight / np.amax(self.color_weight) ) * 255
+        
 
 
     def export_heatmap(self, alpha,color_type):
+        self.color_weight = (self.color_weight / np.amax(self.color_weight) ) * 255
         self.color_weight = self.color_weight.astype(np.uint8)
         self.image_size[0],self.image_size[1] = self.image_size[1],self.image_size[0]
         self.image_size = tuple(self.image_size)
         self.color_weight = cv2.resize(self.color_weight, self.image_size)
         color_map = cv2.applyColorMap(self.color_weight, color_type)
         blended = cv2.addWeighted(self.original_map, 1 - alpha, color_map, alpha, 0)
-        blended = cv2.resize(blended, (1202,850))
         return blended
  
 
