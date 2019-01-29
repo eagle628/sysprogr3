@@ -1,8 +1,22 @@
 
 import numpy as np
 import cv2
+from enum import Enum
 
-
+class Region:
+    bf00 = [1182,1472]
+    bf01 = [582,1472]
+    bf02 = [1782,1472]
+    bf03 = [376,1172]
+    bf04 = []
+    bf05 = []
+    bf06 = []
+    bf07 = []
+    bf08 = []
+    bf09 = []
+    bf10 = []
+    bf11 = []
+    bf12 = []
 
 class Heatmapimage : 
 
@@ -33,6 +47,7 @@ class Heatmapimage :
         pos[0] = (pos[0] - self.image_size[1]/2) / self.resize_scale
         pos[1] = (pos[1] - self.image_size[0]/2) / self.resize_scale
         var = [x / (self.resize_scale * self.resize_scale) for x in var]
+        # var = [x / self.resize_scale for x in var]
         Z = self.__gaussian_2d_matrix(pos,var)
         Z = (Z * 255 * weight) / np.amax(Z)   
         self.color_weight[:,:,0] = self.color_weight[:,:,0] + Z
@@ -46,7 +61,9 @@ class Heatmapimage :
         self.color_weight = cv2.resize(self.color_weight, self.image_size)
         color_map = cv2.applyColorMap(self.color_weight, color_type)
         blended = cv2.addWeighted(self.original_map, 1 - alpha, color_map, alpha, 0)
+        blended = cv2.resize(blended, (1202,850))
         return blended
+ 
 
 
 

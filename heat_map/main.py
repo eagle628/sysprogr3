@@ -1,16 +1,17 @@
 # coding: UTF-8
 import cv2
 from colormap import Heatmapimage
+from colormap import Region
 
 
-heatmap1 = Heatmapimage('1f.jpg',20) #オリジナル画像を指定してインスタンス生成
+heatmap1 = Heatmapimage('1f_all.jpg',10) #オリジナル画像と重み描画分解能を指定してインスタンス生成
 
-heatmap1.add_gaussian([551,336],[800,6000],1) #描画中心座標，xy分散,重みを指定して，ガウシアン（山）を書き込み
-heatmap1.add_gaussian([311,336],[800,6000],0.5)
-heatmap1.add_gaussian([726,428],[1000,1000],0.8)
+heatmap1.add_gaussian(Region.bf01,[10000,200],0.1) #描画中心座標，xy分散,重みを指定して，ガウシアン（山）を書き込み
+# heatmap1.add_gaussian(Region.bf02,[10,10],1)
+# heatmap1.add_gaussian(Region.bf03,[10,10],1)
 
 
-color_map1 = heatmap1.export_heatmap(0.3,cv2.COLORMAP_RAINBOW)
+color_map1 = heatmap1.export_heatmap(0.65,cv2.COLORMAP_HOT)
 #ヒートマップ画像を生成
 #カラーマップはCOLORMAP_OCEAN,COLORMAP_HSV,COLORMAP_RAINBOW,COLORMAP_HOTなどがある
 
