@@ -6,11 +6,12 @@ from multiprocessing import Process
 
 from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.views import generic, View
-from .forms import PhotoForm, PassForm, SerachForm
+from .forms import PhotoForm, PassForm, SerachForm, ConfirmForm
 from .models import Photo, Progress
 
-from . import ML_func
-from . import SearchDirection
+from .CV_Module import ML_func, SearchDirection, colormap
+
+import chainer.functions as F
 
 #from background_task import background
 import cv2
@@ -73,8 +74,7 @@ class StartProcessing(View):
         BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         images = Photo.objects.filter(stage='input',member=ID,idx=request.session['idx'])
         for image in images:
-            path_set = ML_func.preprocess(os.path.join(BASE_DIR,'media'), image.image.name, crop_size = 28)
-            logging.debug(path_set)
+            path_set = ML_func.preprocess(os.path.join(BASE_DIR,'media'), image.image.name, crop_size = 1000)
             for path in path_set:
                 photo = Photo()
                 photo.image = path
@@ -93,12 +93,69 @@ class Result(View):
         ID = request.session.session_key
         input_images = Photo.objects.filter(stage='input',member=ID,idx=request.session['idx'])
         output_images = Photo.objects.filter(stage='output',member=ID,idx=request.session['idx'])
-        result = []
+        Flag = False
         for output in output_images :
-            result.append(np.argmax(np.frombuffer(output.result, dtype=np.float32)))
-            logging.debug(np.frombuffer(output.result, dtype=np.float32))
-        result = np.unique(result)
-        return render(request,self.template_name,{'Input':input_images, 'Output':output_images, 'Result':result, 'Form':SerachForm()})
+            if Flag is False :
+                result = np.array([np.frombuffer(output.result, dtype=np.float32)])
+                Flag = True
+            else :
+                result += np.array([np.frombuffer(output.result, dtype=np.float32)])
+        logging.debug('result : ')
+        logging.debug(result)
+        result = np.argmax(F.softmax(result).data)
+        # make heatmap
+        test_result = (0.2*np.ones((1,2))).tolist()[0]
+        path = os.path.dirname(os.path.abspath(__file__))
+        MEDIA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),'media','CaptureVideo','media')
+
+        logging.debug('make HeatMap FB1')
+        FB1 = colormap.Heatmapimage(os.path.join(path,'CV_Module','Map_Honkan','bf_all.jpg'), quality=100)
+        for itr in range(0,len(test_result)) :
+            FB1.add_gaussian(itr, test_result[itr])
+        photo = Photo()
+        photo.image = FB1.export_heatmap(MEDIA_DIR)
+        photo.stage = 'HeatMap'
+        photo.member = ID
+        photo.idx = request.session['idx']
+        photo.save()
+
+        logging.debug('make HeatMap F1')
+        F1 = colormap.Heatmapimage(os.path.join(path,'CV_Module','Map_Honkan','1f_all.jpg'), quality=100)
+        for itr in range(0,len(test_result)) :
+            F1.add_gaussian(itr, test_result[itr])
+        photo = Photo()
+        photo.image = F1.export_heatmap(MEDIA_DIR)
+        photo.stage = 'HeatMap'
+        photo.member = ID
+        photo.idx = request.session['idx']
+        photo.save()
+
+        logging.debug('make HeatMap F2')
+        F2 = colormap.Heatmapimage(os.path.join(path,'CV_Module','Map_Honkan','2f_all.jpg'), quality=100)
+        for itr in range(0,len(test_result)) :
+            F2.add_gaussian(itr, test_result[itr])
+        photo = Photo()
+        photo.image = F2.export_heatmap(MEDIA_DIR)
+        photo.stage = 'HeatMap'
+        photo.member = ID
+        photo.idx = request.session['idx']
+        photo.save()
+
+        logging.debug('make HeatMap F3')
+        F3 = colormap.Heatmapimage(os.path.join(path,'CV_Module','Map_Honkan','3f_all.jpg'), quality=100)
+        for itr in range(0,len(test_result)) :
+            F3.add_gaussian(itr, test_result[itr])
+        photo = Photo()
+        photo.image = F3.export_heatmap(MEDIA_DIR)
+        photo.stage = 'HeatMap'
+        photo.member = ID
+        photo.idx = request.session['idx']
+        photo.save()
+
+        # Result Heatmap
+        heatmap_images = Photo.objects.filter(stage='HeatMap',member=ID,idx=request.session['idx'])
+
+        return render(request,self.template_name,{'Input':input_images, 'Output':output_images, 'Result':heatmap_images, 'Form':SerachForm()})
 
     def post(self, request, *args):
         ID = request.session.session_key
@@ -123,13 +180,29 @@ class Tree(View):
     template_name = 'CaptureVideo/tree.html'
 
     def get(self, request, *args):
-        logging.debug(type(request.session['start_idx']))
         tree = SearchDirection.search_tree(request.session['start_idx'], request.session['end_idx'])
         return render(request,self.template_name,{'Tree':tree})
 
     def post(self, request):
         ID = request.session.session_key
+        if 'next' in request.POST:
+            return redirect('CaptureVideo:confirm')
+
+class Confirm(View):
+    template_name = 'CaptureVideo/confirm.html'
+
+    def get(self, request, *args):
+        logging.debug(type(request.session['start_idx']))
+        return render(request,self.template_name,{'Confirm':ConfirmForm(initial={'answer': 0})})
+
+    def post(self, request):
+        ID = request.session.session_key
         if 'complete' in request.POST:
+            logging.debug(request.POST['answer'])
+            if request.POST['answer'] == '1':
+                logging.debug('Save Correct data')
+            elif request.POST['answer'] == '0':
+                logging.debug('Delete Incorrect data')
             # media clean
             BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             image_set = Photo.objects.filter(member=ID)

@@ -9,4 +9,5 @@ urlpatterns = [
     path('SendImageForm/', views.SendImageForm.as_view(), name='sendimageform'),
     path('Processing/', views.StartProcessing.as_view(), name='processing'),
     path('Tree/', views.Tree.as_view(), name='tree'),
+    path('Confirm/', views.Confirm.as_view(), name='confirm'),
 ]
