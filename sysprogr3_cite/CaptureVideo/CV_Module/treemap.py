@@ -34,15 +34,15 @@ class Treemapimage :
                     )
 
     def __trans_pos(self, point):
-        pos = self.point[str(point)][0]
+        pos = self.point[str(point % 13)][0]
         pos = tuple(pos)
         return pos
 
     def export_treemap(self, root, node_list):
-        for itr in range(0,len(node_list)-1):
-            self.__add_arrowedLine(node_list[itr:itr+2])
         for node in node_list:
             self.__add_marker(node)
+        for itr in range(0,len(node_list)-1):
+            self.__add_arrowedLine(node_list[itr:itr+2])
         # write image
         filename = os.path.join(root,str(uuid.uuid4()).replace('-', '')+'.jpg')
         cv2.imwrite(filename, self.original_map)
@@ -52,6 +52,6 @@ if __name__ == '__main__':
     path = os.path.dirname(os.path.abspath(__file__))
     AAA = Treemapimage(os.path.join(path,'Map_Honkan','1f_all.jpg'))
     node_list = [7,8,12,10,9,2,0,5,6,11,4,3]
-    #AAA.export_treemap('.',node_list) # cut write image line 
+    #AAA.export_treemap('.',node_list) # cut write image line
     #cv2.imshow('Tree', AAA.original_map)
     #cv2.waitKey(0)
