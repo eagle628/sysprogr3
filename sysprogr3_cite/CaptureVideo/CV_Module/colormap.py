@@ -36,11 +36,11 @@ class Heatmapimage :
         return np.vectorize(self.__gaussian_2d)(X,Y)
 
     def add_gaussian(self,point,weight):
-        pos = self.point[str(point)][0:2]
+        pos = self.point[str(point)][0]
         pos[0] = (pos[0] - self.image_size[1]/2) / self.resize_scale
         pos[1] = (pos[1] - self.image_size[0]/2) / self.resize_scale
         logging.debug(pos)
-        var = self.point[str(point)][2:4]
+        var = self.point[str(point)][1]
         var = [x / (self.resize_scale * self.resize_scale) for x in var]
         Z = self.__gaussian_2d_matrix(pos,var)
         Z = (Z * 255 * weight) / np.amax(Z)
