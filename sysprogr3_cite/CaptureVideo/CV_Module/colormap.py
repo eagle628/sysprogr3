@@ -10,7 +10,7 @@ class Heatmapimage :
 
     def __init__(self, map_path, quality=1):
         self.original_map = cv2.imread(map_path)
-        self.resize_scale = 1
+        self.resize_scale = quality
         self.image_size = list(self.original_map.shape[0:2])
         self.colormap_size = [int(x / quality) for x in self.image_size]
         self.color_weight = np.zeros(self.colormap_size+[1,], np.uint8)

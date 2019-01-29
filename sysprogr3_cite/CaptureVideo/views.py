@@ -109,7 +109,7 @@ class Result(View):
         MEDIA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),'media','CaptureVideo','media')
 
         logging.debug('make HeatMap FB1')
-        FB1 = colormap.Heatmapimage(os.path.join(path,'CV_Module','Map_Honkan','bf_all.jpg'))
+        FB1 = colormap.Heatmapimage(os.path.join(path,'CV_Module','Map_Honkan','bf_all.jpg'), quality=100)
         for itr in range(0,len(test_result)) :
             FB1.add_gaussian(itr, test_result[itr])
         photo = Photo()
@@ -120,7 +120,7 @@ class Result(View):
         photo.save()
 
         logging.debug('make HeatMap F1')
-        F1 = colormap.Heatmapimage(os.path.join(path,'CV_Module','Map_Honkan','1f_all.jpg'))
+        F1 = colormap.Heatmapimage(os.path.join(path,'CV_Module','Map_Honkan','1f_all.jpg'), quality=100)
         for itr in range(0,len(test_result)) :
             F1.add_gaussian(itr, test_result[itr])
         photo = Photo()
@@ -131,7 +131,7 @@ class Result(View):
         photo.save()
 
         logging.debug('make HeatMap F2')
-        F2 = colormap.Heatmapimage(os.path.join(path,'CV_Module','Map_Honkan','2f_all.jpg'))
+        F2 = colormap.Heatmapimage(os.path.join(path,'CV_Module','Map_Honkan','2f_all.jpg'), quality=100)
         for itr in range(0,len(test_result)) :
             F2.add_gaussian(itr, test_result[itr])
         photo = Photo()
@@ -142,7 +142,7 @@ class Result(View):
         photo.save()
 
         logging.debug('make HeatMap F3')
-        F3 = colormap.Heatmapimage(os.path.join(path,'CV_Module','Map_Honkan','3f_all.jpg'))
+        F3 = colormap.Heatmapimage(os.path.join(path,'CV_Module','Map_Honkan','3f_all.jpg'), quality=100)
         for itr in range(0,len(test_result)) :
             F3.add_gaussian(itr, test_result[itr])
         photo = Photo()
