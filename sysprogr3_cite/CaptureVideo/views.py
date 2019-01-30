@@ -9,7 +9,7 @@ from django.views import generic, View
 from .forms import PhotoForm, PassForm, SerachForm, ConfirmForm
 from .models import Photo, Progress
 
-from .CV_Module import ML_func, SearchDirection, colormap
+from .CV_Module import ML_func, SearchDirection, colormap, treemap
 
 import chainer.functions as F
 
@@ -109,7 +109,7 @@ class Result(View):
         MEDIA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),'media','CaptureVideo','media')
 
         logging.debug('make HeatMap FB1')
-        FB1 = colormap.Heatmapimage(os.path.join(path,'CV_Module','Map_Honkan','bf_all.jpg'), quality=100)
+        FB1 = colormap.Heatmapimage(os.path.join(path,'CV_Module','Map_Honkan','bf_all.jpg'), quality=1)
         for itr in range(0,len(test_result)) :
             FB1.add_gaussian(itr, test_result[itr])
         photo = Photo()
@@ -120,7 +120,7 @@ class Result(View):
         photo.save()
 
         logging.debug('make HeatMap F1')
-        F1 = colormap.Heatmapimage(os.path.join(path,'CV_Module','Map_Honkan','1f_all.jpg'), quality=100)
+        F1 = colormap.Heatmapimage(os.path.join(path,'CV_Module','Map_Honkan','1f_all.jpg'), quality=1)
         for itr in range(0,len(test_result)) :
             F1.add_gaussian(itr, test_result[itr])
         photo = Photo()
@@ -131,7 +131,7 @@ class Result(View):
         photo.save()
 
         logging.debug('make HeatMap F2')
-        F2 = colormap.Heatmapimage(os.path.join(path,'CV_Module','Map_Honkan','2f_all.jpg'), quality=100)
+        F2 = colormap.Heatmapimage(os.path.join(path,'CV_Module','Map_Honkan','2f_all.jpg'), quality=1)
         for itr in range(0,len(test_result)) :
             F2.add_gaussian(itr, test_result[itr])
         photo = Photo()
@@ -142,7 +142,7 @@ class Result(View):
         photo.save()
 
         logging.debug('make HeatMap F3')
-        F3 = colormap.Heatmapimage(os.path.join(path,'CV_Module','Map_Honkan','3f_all.jpg'), quality=100)
+        F3 = colormap.Heatmapimage(os.path.join(path,'CV_Module','Map_Honkan','3f_all.jpg'), quality=1)
         for itr in range(0,len(test_result)) :
             F3.add_gaussian(itr, test_result[itr])
         photo = Photo()
@@ -180,8 +180,60 @@ class Tree(View):
     template_name = 'CaptureVideo/tree.html'
 
     def get(self, request, *args):
+        # Internal function
+        def extract_node_list(node_list, st, en):
+            li = []
+            for node in node_list:
+                if node >= st and node <=en:
+                    li.append(node)
+            return li
+        # main
+        ID = request.session.session_key
         tree = SearchDirection.search_tree(request.session['start_idx'], request.session['end_idx'])
-        return render(request,self.template_name,{'Tree':tree})
+        # set path
+        path = os.path.dirname(os.path.abspath(__file__))
+        MEDIA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),'media','CaptureVideo','media')
+
+        logging.debug('make TreeMap FB1')
+        FB1 = treemap.Treemapimage(os.path.join(path,'CV_Module','Map_Honkan','bf_all.jpg'), quality=1)
+        photo = Photo()
+        photo.image = FB1.export_treemap(MEDIA_DIR, extract_node_list(tree, 0, 12))
+        photo.stage = 'TreeMap'
+        photo.member = ID
+        photo.idx = request.session['idx']
+        photo.save()
+
+        logging.debug('make TreeMap F1')
+        F1 = treemap.Treemapimage(os.path.join(path,'CV_Module','Map_Honkan','bf_all.jpg'), quality=1)
+        photo = Photo()
+        photo.image = F1.export_treemap(MEDIA_DIR, extract_node_list(tree, 13, 25))
+        photo.stage = 'TreeMap'
+        photo.member = ID
+        photo.idx = request.session['idx']
+        photo.save()
+
+        logging.debug('make TreeMap F2')
+        F2 = treemap.Treemapimage(os.path.join(path,'CV_Module','Map_Honkan','bf_all.jpg'), quality=1)
+        photo = Photo()
+        photo.image = F2.export_treemap(MEDIA_DIR, extract_node_list(tree, 26, 38))
+        photo.stage = 'TreeMap'
+        photo.member = ID
+        photo.idx = request.session['idx']
+        photo.save()
+
+        logging.debug('make TreeMap F3')
+        F3 = treemap.Treemapimage(os.path.join(path,'CV_Module','Map_Honkan','bf_all.jpg'), quality=1)
+        photo = Photo()
+        photo.image = F3.export_treemap(MEDIA_DIR, extract_node_list(tree, 39, 51))
+        photo.stage = 'TreeMap'
+        photo.member = ID
+        photo.idx = request.session['idx']
+        photo.save()
+
+        # Result Treemap
+        treemap_images = Photo.objects.filter(stage='TreeMap',member=ID,idx=request.session['idx'])
+
+        return render(request,self.template_name,{'Tree':treemap_images})
 
     def post(self, request):
         ID = request.session.session_key
@@ -232,6 +284,7 @@ def ImageTranspose(image_root, image_name):
     output_path =os.path.join(image_root,'CaptureVideo','media',name+'.jpg')
     cv2.imwrite(output_path, dst3)
     return output_path
+
 ###############################################################################
 
 

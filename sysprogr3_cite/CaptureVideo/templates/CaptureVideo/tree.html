@@ -3,7 +3,9 @@
 
 {% block content %}
 <h1>Tree</h1>
-{{ Tree }}
+{% for image in Tree %}
+  <img src= "{{ image.image.url}}" width=200><br>
+{% endfor %}
 <form action="{% url 'CaptureVideo:tree' %}" method="POST">
     {% csrf_token %}
     <button type="submit" name='next' class="btn btn-primary">Next !! </button>
