@@ -6,7 +6,7 @@ from multiprocessing import Process
 
 from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.views import generic, View
-from .forms import PhotoForm, PassForm, SerachForm, ConfirmForm
+from .forms import PhotoForm, PassForm, SerachForm, ConfirmForm, MapForm
 from .models import Photo, Progress
 
 from .CV_Module import ML_func, SearchDirection, colormap, treemap
@@ -22,13 +22,14 @@ def index(request):
     if request.method == 'GET':
         image_set = Photo.objects.all()
         image_set.delete()
-        return render(request, 'CaptureVideo/index.html')
+        return render(request, 'CaptureVideo/index.html',{'Form':MapForm()})
     elif request.method == 'POST':
         if not request.session.session_key:
             request.session.create()
         logging.debug('Session ID : '+request.session.session_key)
         if 'idx' not in request.session:
             request.session['idx'] = 0
+        request.session['map'] = request.POST['map']
         return redirect('CaptureVideo:sendimageform')
 
 class SendImageForm(View):
@@ -104,7 +105,7 @@ class Result(View):
         logging.debug(result)
         result = np.argmax(F.softmax(result).data)
         # make heatmap
-        result = (200*np.random.rand(1,52)).tolist()[0] # test 
+        result = (200*np.random.rand(1,52)).tolist()[0] # test
         path = os.path.dirname(os.path.abspath(__file__))
         MEDIA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),'media','CaptureVideo','media')
 

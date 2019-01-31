@@ -2,6 +2,10 @@
 # https://qiita.com/narupo/items/e3dbdd5d030952d10661
 from django import forms
 
+MAP_CHOICE = [
+    ('HONKAN','HONKAN')
+]
+
 LOCALE_CHOICES = [
     (0,'bf-0'),
     (1,'bf-1'),
@@ -60,6 +64,8 @@ LOCALE_CHOICES = [
 confirm = [(1,'yes'),(0,'no')]
 
 # choicefieldの数字(int)は，formで送信されるとstrに変化する．
+class MapForm(forms.Form):
+    map = forms.ChoiceField(widget=forms.Select, choices=MAP_CHOICE)
 
 class PhotoForm(forms.Form):
     image = forms.ImageField()
