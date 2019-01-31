@@ -92,8 +92,8 @@ class Result(View):
 
     def get(self, request, *args):
         ID = request.session.session_key
-        input_images = Photo.objects.filter(stage='input',member=ID,idx=request.session['idx'])
-        output_images = Photo.objects.filter(stage='output',member=ID,idx=request.session['idx'])
+        input_images = Photo.objects.filter(stage='input',member=ID)
+        output_images = Photo.objects.filter(stage='output',member=ID)
         Flag = False
         for output in output_images :
             if Flag is False :
