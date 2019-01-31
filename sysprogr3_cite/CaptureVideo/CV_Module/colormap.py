@@ -13,7 +13,8 @@ class Heatmapimage :
         self.resize_scale = quality
         self.image_size = list(self.original_map.shape[0:2])
         self.colormap_size = [int(x / quality) for x in self.image_size]
-        self.color_weight = np.zeros(self.colormap_size+[1,], np.uint8)
+        self.color_weight = np.zeros(self.colormap_size+[1,], np.uint16)
+        self.blank_image = np.zeros(self.image_size+[1,], np.uint8)
         # read point
         map_path_root = os.path.dirname(map_path)
         with open(os.path.join(map_path_root,'point.json'),'r') as f:
@@ -47,14 +48,39 @@ class Heatmapimage :
         self.color_weight[:,:,0] = self.color_weight[:,:,0] + Z
         self.color_weight = (self.color_weight / np.amax(self.color_weight) ) * 255
 
+    def add_circle(self,point,darkness=50):
+        pos = tuple(self.point[str(point % 13)][0])
+        shape = tuple(self.point[str(point % 13)][1])
+        self.blank_image = cv2.ellipse(self.blank_image,(pos,shape,360),(darkness,darkness,darkness), -1)
 
     def export_heatmap(self, root, alpha=0.3, color_type=cv2.COLORMAP_RAINBOW):
-        self.color_weight = self.color_weight.astype(np.uint8)
-        self.image_size[0],self.image_size[1] = self.image_size[1],self.image_size[0]
-        self.image_size = tuple(self.image_size)
-        self.color_weight = cv2.resize(self.color_weight, self.image_size)
-        color_map = cv2.applyColorMap(self.color_weight, color_type)
+        color_map = cv2.applyColorMap(self.blank_image, color_type)
+        color_map = cv2.blur(color_map,(blur,blur))
         blended = cv2.addWeighted(self.original_map, 1 - alpha, color_map, alpha, 0)
         filename = os.path.join(root,str(uuid.uuid4()).replace('-', '')+'.jpg')
         cv2.imwrite(filename, blended)
+        return filename
+
+    def __get_gradation_2d(self, start, stop, width, height, is_horizontal):
+        if is_horizontal:
+            return np.tile(np.linspace(start, stop, width), (height, 1))
+        else:
+            return np.tile(np.linspace(start, stop, height), (width, 1)).T
+
+    def __get_gradation_3d(self, width, height, start_list, stop_list, is_horizontal_list):
+        result = np.zeros((height, width, len(start_list)), dtype=np.uint8)
+        for i, (start, stop, is_horizontal) in enumerate(zip(start_list, stop_list, is_horizontal_list)):
+            result[:, :, i] = self.__get_gradation_2d(start, stop, width, height, is_horizontal)
+        return result
+
+    def export_heatmap_with_colorbar(self,root, alpha=0.65,color_type=cv2.COLORMAP_JET,blur=10):
+        color_map = cv2.applyColorMap(self.blank_image, color_type)
+        color_map = cv2.blur(color_map,(blur,blur))
+        blended = cv2.addWeighted(self.original_map, 1 - alpha, color_map, alpha, 0)
+        # array = self.__get_gradation_3d(512, 256, (0, 0, 0), (255, 255, 255), (True, True, True))
+        gradation_array = self.__get_gradation_3d(50, self.image_size[0], (255, 255, 255), (0, 0, 0), (False, False, False))
+        color_bar = cv2.applyColorMap(gradation_array, color_type)
+        heatmap = cv2.hconcat([blended, color_bar])
+        filename = os.path.join(root,str(uuid.uuid4()).replace('-', '')+'.jpg')
+        cv2.imwrite(filename, heatmap)
         return filename

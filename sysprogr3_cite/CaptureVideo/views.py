@@ -104,16 +104,16 @@ class Result(View):
         logging.debug(result)
         result = np.argmax(F.softmax(result).data)
         # make heatmap
-        test_result = (0.2*np.ones((1,2))).tolist()[0]
+        result = (200*np.random.rand(1,52)).tolist()[0] # test 
         path = os.path.dirname(os.path.abspath(__file__))
         MEDIA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),'media','CaptureVideo','media')
 
         logging.debug('make HeatMap FB1')
         FB1 = colormap.Heatmapimage(os.path.join(path,'CV_Module','Map_Honkan','bf_all.jpg'), quality=1)
-        for itr in range(0,len(test_result)) :
-            FB1.add_gaussian(itr, test_result[itr])
+        for itr in range(0,len(result)) :
+            FB1.add_circle(itr, result[itr])
         photo = Photo()
-        photo.image = FB1.export_heatmap(MEDIA_DIR)
+        photo.image = FB1.export_heatmap_with_colorbar(MEDIA_DIR)
         photo.stage = 'HeatMap'
         photo.member = ID
         photo.idx = request.session['idx']
@@ -121,10 +121,10 @@ class Result(View):
 
         logging.debug('make HeatMap F1')
         F1 = colormap.Heatmapimage(os.path.join(path,'CV_Module','Map_Honkan','1f_all.jpg'), quality=1)
-        for itr in range(0,len(test_result)) :
-            F1.add_gaussian(itr, test_result[itr])
+        for itr in range(0,len(result)) :
+            F1.add_circle(itr, result[itr])
         photo = Photo()
-        photo.image = F1.export_heatmap(MEDIA_DIR)
+        photo.image = F1.export_heatmap_with_colorbar(MEDIA_DIR)
         photo.stage = 'HeatMap'
         photo.member = ID
         photo.idx = request.session['idx']
@@ -132,10 +132,10 @@ class Result(View):
 
         logging.debug('make HeatMap F2')
         F2 = colormap.Heatmapimage(os.path.join(path,'CV_Module','Map_Honkan','2f_all.jpg'), quality=1)
-        for itr in range(0,len(test_result)) :
-            F2.add_gaussian(itr, test_result[itr])
+        for itr in range(0,len(result)) :
+            F2.add_circle(itr, result[itr])
         photo = Photo()
-        photo.image = F2.export_heatmap(MEDIA_DIR)
+        photo.image = F2.export_heatmap_with_colorbar(MEDIA_DIR)
         photo.stage = 'HeatMap'
         photo.member = ID
         photo.idx = request.session['idx']
@@ -143,10 +143,10 @@ class Result(View):
 
         logging.debug('make HeatMap F3')
         F3 = colormap.Heatmapimage(os.path.join(path,'CV_Module','Map_Honkan','3f_all.jpg'), quality=1)
-        for itr in range(0,len(test_result)) :
-            F3.add_gaussian(itr, test_result[itr])
+        for itr in range(0,len(result)) :
+            F3.add_circle(itr, result[itr])
         photo = Photo()
-        photo.image = F3.export_heatmap(MEDIA_DIR)
+        photo.image = F3.export_heatmap_with_colorbar(MEDIA_DIR)
         photo.stage = 'HeatMap'
         photo.member = ID
         photo.idx = request.session['idx']
