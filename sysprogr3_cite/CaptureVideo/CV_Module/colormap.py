@@ -91,7 +91,6 @@ class Heatmapimage :
         color_map = cv2.applyColorMap(self.blank_image, color_type)
         color_map = cv2.blur(color_map,(blur,blur))
         # blended = cv2.addWeighted(self.original_map, 1 - alpha, color_map, alpha, 0)
-
         mask = self.original_map_cut[:,:,3]  # アルファチャンネルだけ抜き出す。
         mask = np.dstack([mask,mask,mask])
         self.original_map_cut = self.original_map_cut[:,:,:3]  # アルファチャンネルは取り出しちゃったのでもういらない
