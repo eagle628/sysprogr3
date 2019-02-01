@@ -2,9 +2,9 @@
 import cv2
 from colormap import Heatmapimage
 from colormap import Region
-import time
+# import time
 
-t1 = time.time() 
+# t1 = time.time() 
  
 #オリジナル画像と重み描画分解能を指定してインスタンス生成
 heatmap1 = Heatmapimage('1f_all.jpg','1f_all.png',5) 
@@ -39,11 +39,11 @@ heatmap1.add_circle(Region.Hbf12,[120,20],200)
 
 #ヒートマップ画像を生成
 #カラーマップはCOLORMAP_OCEAN,COLORMAP_HSV,COLORMAP_RAINBOW,COLORMAP_HOTなどがある
-color_map1 = heatmap1.export_heatmap(0.65,cv2.COLORMAP_JET,15)
-color_map1 = heatmap1.export_heatmap_with_colorbar(0.65,cv2.COLORMAP_JET,15)
+# color_map1 = heatmap1.export_heatmap(0.65,cv2.COLORMAP_JET,15)
+# color_map1 = heatmap1.export_heatmap_with_colorbar(0.65,cv2.COLORMAP_JET,15)
 color_map1 = heatmap1.export_heatmap_with_colorbar_overlay(cv2.COLORMAP_JET,15)
-t2 = time.time()
-print(t2-t1)
+# t2 = time.time()
+# print(t2-t1)
 
 # 表示
 cv2.imwrite('heatmap.jpg',color_map1)
