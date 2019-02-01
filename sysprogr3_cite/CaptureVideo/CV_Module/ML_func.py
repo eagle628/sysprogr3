@@ -14,7 +14,7 @@ from chainer.cuda import to_cpu
 import logging
 
 # preprocess  fucntion
-def preprocess(root_path, image_name, decimate_rate = 0, crop_number = 3, crop_size = 1000, resize_scale = 1, extension='.jpg'):
+def preprocess(root_path, image_name, decimate_rate = 0, crop_number = 3, crop_size = 1000, resize_scale = 2, extension='.jpg'):
     preprocessed_image_name = []
     if random.random() >= decimate_rate :
         image = cv2.imread(os.path.join(root_path,image_name))
@@ -39,11 +39,12 @@ def preprocess(root_path, image_name, decimate_rate = 0, crop_number = 3, crop_s
     return preprocessed_image_name
 
 def est_locale(image_path, gpu_id=-1):
-    net = DeepCNN(3)
+    #net = DeepCNN(3)
+    net = DeepCNN(52)
     net = L.Classifier(net)
     #net = MLP()
     chainer.serializers.load_npz(
-        os.path.join(os.path.dirname(__file__),'ML_model/snapshot_epoch-20'),
+        os.path.join(os.path.dirname(__file__),'ML_model/snapshot_epoch-99'),
         net, path='updater/model:main/')
     if gpu_id >= 0:
         net.to_gpu(gpu_id)

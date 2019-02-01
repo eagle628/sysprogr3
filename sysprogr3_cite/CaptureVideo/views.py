@@ -103,15 +103,25 @@ class Result(View):
                 result += np.array([np.frombuffer(output.result, dtype=np.float32)])
         logging.debug('result : ')
         logging.debug(result)
-        result = np.argmax(F.softmax(result).data)
+        result = F.softmax(result).data
         # make heatmap
-        result = (200*np.random.rand(1,52)).tolist()[0] # test
+        logging.debug('Softmax result : ')
+        logging.debug(result)
+        tmp = np.max(result)
+        result = (result*200/tmp).astype(np.int64)
+        result = result.tolist()[0]
+        #result = [200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,]
+        logging.debug('nomarilize :')
+        logging.debug(result)
+        #result = (result).tolist()[0]
+        #logging.debug(result)
+        #result = (200*np.random.rand(1,52)).tolist()[0] # test
         path = os.path.dirname(os.path.abspath(__file__))
         MEDIA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),'media','CaptureVideo','media')
 
         logging.debug('make HeatMap FB1')
         FB1 = colormap.Heatmapimage(os.path.join(path,'CV_Module','Map_Honkan','bf_all.jpg'), quality=1)
-        for itr in range(0,len(result)) :
+        for itr in range(39,51) :
             FB1.add_circle(itr, result[itr])
         photo = Photo()
         photo.image = FB1.export_heatmap_with_colorbar(MEDIA_DIR)
@@ -122,7 +132,7 @@ class Result(View):
 
         logging.debug('make HeatMap F1')
         F1 = colormap.Heatmapimage(os.path.join(path,'CV_Module','Map_Honkan','1f_all.jpg'), quality=1)
-        for itr in range(0,len(result)) :
+        for itr in range(0,12) :
             F1.add_circle(itr, result[itr])
         photo = Photo()
         photo.image = F1.export_heatmap_with_colorbar(MEDIA_DIR)
@@ -133,7 +143,7 @@ class Result(View):
 
         logging.debug('make HeatMap F2')
         F2 = colormap.Heatmapimage(os.path.join(path,'CV_Module','Map_Honkan','2f_all.jpg'), quality=1)
-        for itr in range(0,len(result)) :
+        for itr in range(13,25) :
             F2.add_circle(itr, result[itr])
         photo = Photo()
         photo.image = F2.export_heatmap_with_colorbar(MEDIA_DIR)
@@ -144,7 +154,7 @@ class Result(View):
 
         logging.debug('make HeatMap F3')
         F3 = colormap.Heatmapimage(os.path.join(path,'CV_Module','Map_Honkan','3f_all.jpg'), quality=1)
-        for itr in range(0,len(result)) :
+        for itr in range(26,38) :
             F3.add_circle(itr, result[itr])
         photo = Photo()
         photo.image = F3.export_heatmap_with_colorbar(MEDIA_DIR)

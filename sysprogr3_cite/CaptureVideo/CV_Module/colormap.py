@@ -48,7 +48,8 @@ class Heatmapimage :
         self.color_weight[:,:,0] = self.color_weight[:,:,0] + Z
         self.color_weight = (self.color_weight / np.amax(self.color_weight) ) * 255
 
-    def add_circle(self,point,darkness=50):
+    def add_circle(self,point,darkness):
+        logging.debug(darkness)
         pos = tuple(self.point[str(point % 13)][0])
         shape = tuple(self.point[str(point % 13)][1])
         self.blank_image = cv2.ellipse(self.blank_image,(pos,shape,360),(darkness,darkness,darkness), -1)
