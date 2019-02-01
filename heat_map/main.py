@@ -7,7 +7,7 @@ import time
 t1 = time.time() 
  
 #オリジナル画像と重み描画分解能を指定してインスタンス生成
-heatmap1 = Heatmapimage('1f_all.jpg',5) 
+heatmap1 = Heatmapimage('1f_all.jpg','1f_all.png',5) 
 
 #描画中心座標，xy分散,重みを指定して，ガウシアン（山）を書き込み
 # heatmap1.add_gaussian(Region.Hbf01,[1000,1000],0.1)
@@ -41,6 +41,7 @@ heatmap1.add_circle(Region.Hbf12,[120,20],200)
 #カラーマップはCOLORMAP_OCEAN,COLORMAP_HSV,COLORMAP_RAINBOW,COLORMAP_HOTなどがある
 color_map1 = heatmap1.export_heatmap(0.65,cv2.COLORMAP_JET,15)
 color_map1 = heatmap1.export_heatmap_with_colorbar(0.65,cv2.COLORMAP_JET,15)
+color_map1 = heatmap1.export_heatmap_with_colorbar_overlay(cv2.COLORMAP_JET,15)
 t2 = time.time()
 print(t2-t1)
 

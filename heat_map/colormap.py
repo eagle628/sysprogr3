@@ -41,8 +41,9 @@ class Region:
 
 class Heatmapimage : 
 
-    def __init__(self,map_image, quality = 1):
-        self.original_map = cv2.imread(map_image)
+    def __init__(self,map_image1,map_image2, quality = 1):
+        self.original_map = cv2.imread(map_image1)
+        self.original_map_cut = cv2.imread(map_image2,-1)
         self.resize_scale = quality
         self.image_size = list(self.original_map.shape[0:2])
         self.colormap_size = [int(x / quality) for x in self.image_size]
@@ -110,6 +111,24 @@ class Heatmapimage :
         gradation_array = self.__get_gradation_3d(50, self.image_size[0], (255, 255, 255), (0, 0, 0), (False, False, False))
         color_bar = cv2.applyColorMap(gradation_array, color_type)
         heatmap = cv2.hconcat([blended, color_bar])
+        return heatmap
+    
+    def export_heatmap_with_colorbar_overlay(self,color_type,blur=10):
+        color_map = cv2.applyColorMap(self.blank_image, color_type)
+        color_map = cv2.blur(color_map,(blur,blur))
+        # blended = cv2.addWeighted(self.original_map, 1 - alpha, color_map, alpha, 0)
+
+        mask = self.original_map_cut[:,:,3]  # アルファチャンネルだけ抜き出す。
+        mask = np.dstack([mask,mask,mask])
+        self.original_map_cut = self.original_map_cut[:,:,:3]  # アルファチャンネルは取り出しちゃったのでもういらない
+
+        color_map *= 255 - mask  # 透過率に応じて元の画像を暗くする
+        color_map += self.original_map_cut  # 貼り付ける方の画像に透過率をかけて加算
+
+        gradation_array = self.__get_gradation_3d(50, self.image_size[0], (255, 255, 255), (0, 0, 0), (False, False, False))
+        color_bar = cv2.applyColorMap(gradation_array, color_type)
+        heatmap = cv2.hconcat([color_map, color_bar])
+
         return heatmap
  
 
