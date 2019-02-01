@@ -103,12 +103,16 @@ class Result(View):
                 result += np.array([np.frombuffer(output.result, dtype=np.float32)])
         logging.debug('result : ')
         logging.debug(result)
+        '''
         result = F.softmax(result).data
         # make heatmap
         logging.debug('Softmax result : ')
         logging.debug(result)
         tmp = np.max(result)
         result = (result*200/tmp).astype(np.int64)
+        result = result.tolist()[0]
+        '''
+        result = np.exp((result-np.min(result))/(np.max(result)-np.min(result))-1)*240
         result = result.tolist()[0]
         #result = [200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,]
         logging.debug('nomarilize :')
@@ -120,44 +124,44 @@ class Result(View):
         MEDIA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),'media','CaptureVideo','media')
 
         logging.debug('make HeatMap FB1')
-        FB1 = colormap.Heatmapimage(os.path.join(path,'CV_Module','Map_Honkan','bf_all.jpg'), quality=1)
+        FB1 = colormap.Heatmapimage(os.path.join(path,'CV_Module','Map_Honkan','bf_all'), quality=1)
         for itr in range(39,51) :
             FB1.add_circle(itr, result[itr])
         photo = Photo()
-        photo.image = FB1.export_heatmap_with_colorbar(MEDIA_DIR)
+        photo.image = FB1.export_heatmap_with_colorbar_overlay(MEDIA_DIR)
         photo.stage = 'HeatMap'
         photo.member = ID
         photo.idx = request.session['idx']
         photo.save()
 
         logging.debug('make HeatMap F1')
-        F1 = colormap.Heatmapimage(os.path.join(path,'CV_Module','Map_Honkan','1f_all.jpg'), quality=1)
+        F1 = colormap.Heatmapimage(os.path.join(path,'CV_Module','Map_Honkan','1f_all'), quality=1)
         for itr in range(0,12) :
             F1.add_circle(itr, result[itr])
         photo = Photo()
-        photo.image = F1.export_heatmap_with_colorbar(MEDIA_DIR)
+        photo.image = F1.export_heatmap_with_colorbar_overlay(MEDIA_DIR)
         photo.stage = 'HeatMap'
         photo.member = ID
         photo.idx = request.session['idx']
         photo.save()
 
         logging.debug('make HeatMap F2')
-        F2 = colormap.Heatmapimage(os.path.join(path,'CV_Module','Map_Honkan','2f_all.jpg'), quality=1)
+        F2 = colormap.Heatmapimage(os.path.join(path,'CV_Module','Map_Honkan','2f_all'), quality=1)
         for itr in range(13,25) :
             F2.add_circle(itr, result[itr])
         photo = Photo()
-        photo.image = F2.export_heatmap_with_colorbar(MEDIA_DIR)
+        photo.image = F2.export_heatmap_with_colorbar_overlay(MEDIA_DIR)
         photo.stage = 'HeatMap'
         photo.member = ID
         photo.idx = request.session['idx']
         photo.save()
 
         logging.debug('make HeatMap F3')
-        F3 = colormap.Heatmapimage(os.path.join(path,'CV_Module','Map_Honkan','3f_all.jpg'), quality=1)
+        F3 = colormap.Heatmapimage(os.path.join(path,'CV_Module','Map_Honkan','3f_all'), quality=1)
         for itr in range(26,38) :
             F3.add_circle(itr, result[itr])
         photo = Photo()
-        photo.image = F3.export_heatmap_with_colorbar(MEDIA_DIR)
+        photo.image = F3.export_heatmap_with_colorbar_overlay(MEDIA_DIR)
         photo.stage = 'HeatMap'
         photo.member = ID
         photo.idx = request.session['idx']
@@ -206,7 +210,7 @@ class Tree(View):
         MEDIA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),'media','CaptureVideo','media')
 
         logging.debug('make TreeMap FB1')
-        FB1 = treemap.Treemapimage(os.path.join(path,'CV_Module','Map_Honkan','bf_all.jpg'), quality=1)
+        FB1 = treemap.Treemapimage(os.path.join(path,'CV_Module','Map_Honkan','bf_all'), quality=1)
         photo = Photo()
         photo.image = FB1.export_treemap(MEDIA_DIR, extract_node_list(tree, 0, 12))
         photo.stage = 'TreeMap'
@@ -215,7 +219,7 @@ class Tree(View):
         photo.save()
 
         logging.debug('make TreeMap F1')
-        F1 = treemap.Treemapimage(os.path.join(path,'CV_Module','Map_Honkan','bf_all.jpg'), quality=1)
+        F1 = treemap.Treemapimage(os.path.join(path,'CV_Module','Map_Honkan','bf_all'), quality=1)
         photo = Photo()
         photo.image = F1.export_treemap(MEDIA_DIR, extract_node_list(tree, 13, 25))
         photo.stage = 'TreeMap'
@@ -224,7 +228,7 @@ class Tree(View):
         photo.save()
 
         logging.debug('make TreeMap F2')
-        F2 = treemap.Treemapimage(os.path.join(path,'CV_Module','Map_Honkan','bf_all.jpg'), quality=1)
+        F2 = treemap.Treemapimage(os.path.join(path,'CV_Module','Map_Honkan','bf_all'), quality=1)
         photo = Photo()
         photo.image = F2.export_treemap(MEDIA_DIR, extract_node_list(tree, 26, 38))
         photo.stage = 'TreeMap'
@@ -233,7 +237,7 @@ class Tree(View):
         photo.save()
 
         logging.debug('make TreeMap F3')
-        F3 = treemap.Treemapimage(os.path.join(path,'CV_Module','Map_Honkan','bf_all.jpg'), quality=1)
+        F3 = treemap.Treemapimage(os.path.join(path,'CV_Module','Map_Honkan','bf_all'), quality=1)
         photo = Photo()
         photo.image = F3.export_treemap(MEDIA_DIR, extract_node_list(tree, 39, 51))
         photo.stage = 'TreeMap'
