@@ -83,13 +83,11 @@ class Heatmapimage :
         gradation_array = self.__get_gradation_3d(50, self.image_size[0], (255, 255, 255), (0, 0, 0), (False, False, False))
         color_bar = cv2.applyColorMap(gradation_array, color_type)
         heatmap = cv2.hconcat([blended, color_bar])
-        filename = os.path.join(root,str(uuid.uuid4()).replace('-', '')+'.jpg')
-        cv2.imwrite(filename, heatmap)
-        return filename
+        return heatmap
 
-    def export_heatmap_with_colorbar_overlay(self,root,color_type=cv2.COLORMAP_JET,blur=15):
+    def export_heatmap_with_colorbar_overlay(self,root,color_type=cv2.COLORMAP_JET,blur=15,mode=False):
         color_map = cv2.applyColorMap(self.blank_image, color_type)
-        color_map = cv2.blur(color_map,(blur,blur))
+        #color_map = cv2.blur(color_map,(blur,blur))
         # blended = cv2.addWeighted(self.original_map, 1 - alpha, color_map, alpha, 0)
         mask = self.original_map_cut[:,:,3]  # アルファチャンネルだけ抜き出す。
         mask = np.dstack([mask,mask,mask])
@@ -101,6 +99,19 @@ class Heatmapimage :
         gradation_array = self.__get_gradation_3d(50, self.image_size[0], (255, 255, 255), (0, 0, 0), (False, False, False))
         color_bar = cv2.applyColorMap(gradation_array, color_type)
         heatmap = cv2.hconcat([color_map, color_bar])
-        filename = os.path.join(root,str(uuid.uuid4()).replace('-', '')+'.jpg')
-        cv2.imwrite(filename, heatmap)
-        return filename
+        if mode:
+            return heatmap
+        else :
+            filename = os.path.join(root,str(uuid.uuid4()).replace('-', '')+'.jpg')
+            cv2.imwrite(filename, heatmap)
+            return filename
+
+if __name__ == '__main__':
+    path = os.path.dirname(os.path.abspath(__file__))
+    obj = Heatmapimage(os.path.join(path,'Map_Honkan','1f_all'))
+    for itr in range(0,13):
+        obj.add_circle(itr, 200)
+
+    img = obj.export_heatmap_with_colorbar_overlay('.',mode=True)
+    cv2.imshow('map',img)
+    cv2.waitKey(0)
