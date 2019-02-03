@@ -134,7 +134,7 @@ class Result(View):
         for itr in range(39,52) :
             FB1.add_circle(itr, result[itr])
         photo = Photo()
-        photo.image = FB1.export_heatmap_with_colorbar_overlay(MEDIA_DIR)
+        photo.image = FB1.export_heatmap(MEDIA_DIR)
         photo.stage = 'HeatMap'
         photo.member = ID
         photo.idx = request.session['idx']
@@ -145,7 +145,7 @@ class Result(View):
         for itr in range(0,13) :
             F1.add_circle(itr, result[itr])
         photo = Photo()
-        photo.image = F1.export_heatmap_with_colorbar_overlay(MEDIA_DIR)
+        photo.image = F1.export_heatmap(MEDIA_DIR)
         photo.stage = 'HeatMap'
         photo.member = ID
         photo.idx = request.session['idx']
@@ -156,7 +156,7 @@ class Result(View):
         for itr in range(13,26) :
             F2.add_circle(itr, result[itr])
         photo = Photo()
-        photo.image = F2.export_heatmap_with_colorbar_overlay(MEDIA_DIR)
+        photo.image = F2.export_heatmap(MEDIA_DIR)
         photo.stage = 'HeatMap'
         photo.member = ID
         photo.idx = request.session['idx']
@@ -167,7 +167,7 @@ class Result(View):
         for itr in range(26,39) :
             F3.add_circle(itr, result[itr])
         photo = Photo()
-        photo.image = F3.export_heatmap_with_colorbar_overlay(MEDIA_DIR)
+        photo.image = F3.export_heatmap(MEDIA_DIR)
         photo.stage = 'HeatMap'
         photo.member = ID
         photo.idx = request.session['idx']
