@@ -44,7 +44,7 @@ def est_locale(image_path, gpu_id=-1):
     net = L.Classifier(net)
     #net = MLP()
     chainer.serializers.load_npz(
-        os.path.join(os.path.dirname(__file__),'ML_model/snapshot_epoch-99'),
+        os.path.join(os.path.dirname(__file__),'ML_model/snapshot_epoch-60'),
         net, path='updater/model:main/')
     if gpu_id >= 0:
         net.to_gpu(gpu_id)
