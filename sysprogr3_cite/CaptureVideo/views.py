@@ -120,7 +120,6 @@ class Result(View):
         result = result/np.max(result)*200
         result = result.astype(np.int64).tolist()[0]
         """
-        result = [200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,200,]
         logging.debug('nomarilize :')
         logging.debug(result)
         #result = (result).tolist()[0]
@@ -135,7 +134,7 @@ class Result(View):
             FB1.add_circle(itr, result[itr])
         photo = Photo()
         photo.image = FB1.export_heatmap(MEDIA_DIR)
-        photo.stage = 'HeatMap'
+        photo.stage = 'HeatMap_BF'
         photo.member = ID
         photo.idx = request.session['idx']
         photo.save()
@@ -146,7 +145,7 @@ class Result(View):
             F1.add_circle(itr, result[itr])
         photo = Photo()
         photo.image = F1.export_heatmap(MEDIA_DIR)
-        photo.stage = 'HeatMap'
+        photo.stage = 'HeatMap_1F'
         photo.member = ID
         photo.idx = request.session['idx']
         photo.save()
@@ -157,7 +156,7 @@ class Result(View):
             F2.add_circle(itr, result[itr])
         photo = Photo()
         photo.image = F2.export_heatmap(MEDIA_DIR)
-        photo.stage = 'HeatMap'
+        photo.stage = 'HeatMap_2F'
         photo.member = ID
         photo.idx = request.session['idx']
         photo.save()
@@ -168,13 +167,13 @@ class Result(View):
             F3.add_circle(itr, result[itr])
         photo = Photo()
         photo.image = F3.export_heatmap(MEDIA_DIR)
-        photo.stage = 'HeatMap'
+        photo.stage = 'HeatMap_3F'
         photo.member = ID
         photo.idx = request.session['idx']
         photo.save()
 
         # Result Heatmap
-        heatmap_images = Photo.objects.filter(stage='HeatMap',member=ID,idx=request.session['idx'])
+        heatmap_images = Photo.objects.filter(stage__contains='HeatMap',member=ID,idx=request.session['idx'])
 
         return render(request,self.template_name,{'Input':input_images, 'Output':output_images, 'Result':heatmap_images, 'Form':SerachForm()})
 
@@ -219,7 +218,7 @@ class Tree(View):
         FB1 = treemap.Treemapimage(os.path.join(path,'CV_Module','Map_Honkan','bf_all'), quality=1)
         photo = Photo()
         photo.image = FB1.export_treemap(MEDIA_DIR, extract_node_list(tree, 0, 12))
-        photo.stage = 'TreeMap'
+        photo.stage = 'TreeMap_BF'
         photo.member = ID
         photo.idx = request.session['idx']
         photo.save()
@@ -228,7 +227,7 @@ class Tree(View):
         F1 = treemap.Treemapimage(os.path.join(path,'CV_Module','Map_Honkan','bf_all'), quality=1)
         photo = Photo()
         photo.image = F1.export_treemap(MEDIA_DIR, extract_node_list(tree, 13, 25))
-        photo.stage = 'TreeMap'
+        photo.stage = 'TreeMap_1F'
         photo.member = ID
         photo.idx = request.session['idx']
         photo.save()
@@ -237,7 +236,7 @@ class Tree(View):
         F2 = treemap.Treemapimage(os.path.join(path,'CV_Module','Map_Honkan','bf_all'), quality=1)
         photo = Photo()
         photo.image = F2.export_treemap(MEDIA_DIR, extract_node_list(tree, 26, 38))
-        photo.stage = 'TreeMap'
+        photo.stage = 'TreeMap_2F'
         photo.member = ID
         photo.idx = request.session['idx']
         photo.save()
@@ -246,13 +245,13 @@ class Tree(View):
         F3 = treemap.Treemapimage(os.path.join(path,'CV_Module','Map_Honkan','bf_all'), quality=1)
         photo = Photo()
         photo.image = F3.export_treemap(MEDIA_DIR, extract_node_list(tree, 39, 51))
-        photo.stage = 'TreeMap'
+        photo.stage = 'TreeMap_3F'
         photo.member = ID
         photo.idx = request.session['idx']
         photo.save()
 
         # Result Treemap
-        treemap_images = Photo.objects.filter(stage='TreeMap',member=ID,idx=request.session['idx'])
+        treemap_images = Photo.objects.filter(stage__contains='TreeMap',member=ID,idx=request.session['idx'])
 
         return render(request,self.template_name,{'Tree':treemap_images})
 

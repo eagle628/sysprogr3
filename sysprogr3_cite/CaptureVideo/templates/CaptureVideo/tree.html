@@ -4,6 +4,7 @@
 {% block content %}
 <h1>Tree</h1>
 {% for image in Tree %}
+  {{ image.stage }} <br>
   <img src= "{{ image.image.url}}" width=200><br>
 {% endfor %}
 <form action="{% url 'CaptureVideo:tree' %}" method="POST">
