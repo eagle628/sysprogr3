@@ -55,13 +55,16 @@ class Heatmapimage :
         shape = tuple(self.point[str(point % 13)][1])
         self.blank_image = cv2.ellipse(self.blank_image,(pos,shape,360),(darkness,darkness,darkness), -1)
 
-    def export_heatmap(self, root, alpha=0.3, color_type=cv2.COLORMAP_RAINBOW):
+    def export_heatmap(self, root, alpha=0.3, color_type=cv2.COLORMAP_RAINBOW,mode=False,blur=15):
         color_map = cv2.applyColorMap(self.blank_image, color_type)
         color_map = cv2.blur(color_map,(blur,blur))
         blended = cv2.addWeighted(self.original_map, 1 - alpha, color_map, alpha, 0)
-        filename = os.path.join(root,str(uuid.uuid4()).replace('-', '')+'.jpg')
-        cv2.imwrite(filename, blended)
-        return filename
+        if mode:
+            return blended
+        else :
+            filename = os.path.join(root,str(uuid.uuid4()).replace('-', '')+'.jpg')
+            cv2.imwrite(filename, blended)
+            return filename
 
     def __get_gradation_2d(self, start, stop, width, height, is_horizontal):
         if is_horizontal:
@@ -75,7 +78,7 @@ class Heatmapimage :
             result[:, :, i] = self.__get_gradation_2d(start, stop, width, height, is_horizontal)
         return result
 
-    def export_heatmap_with_colorbar(self,root, alpha=0.65,color_type=cv2.COLORMAP_JET,blur=10):
+    def export_heatmap_with_colorbar(self,root, alpha=0.65,color_type=cv2.COLORMAP_RAINBOW,blur=10):
         color_map = cv2.applyColorMap(self.blank_image, color_type)
         color_map = cv2.blur(color_map,(blur,blur))
         blended = cv2.addWeighted(self.original_map, 1 - alpha, color_map, alpha, 0)
@@ -85,9 +88,11 @@ class Heatmapimage :
         heatmap = cv2.hconcat([blended, color_bar])
         return heatmap
 
-    def export_heatmap_with_colorbar_overlay(self,root,color_type=cv2.COLORMAP_JET,blur=15,mode=False):
+    def export_heatmap_with_colorbar_overlay(self,root,color_type=cv2.COLORMAP_RAINBOW,blur=15,mode=False):
         color_map = cv2.applyColorMap(self.blank_image, color_type)
-        #color_map = cv2.blur(color_map,(blur,blur))
+        cv2.imshow('map',color_map)
+        cv2.waitKey(0)
+        color_map = cv2.blur(color_map,(blur,blur))
         # blended = cv2.addWeighted(self.original_map, 1 - alpha, color_map, alpha, 0)
         mask = self.original_map_cut[:,:,3]  # アルファチャンネルだけ抜き出す。
         mask = np.dstack([mask,mask,mask])
@@ -95,7 +100,6 @@ class Heatmapimage :
 
         color_map *= 255 - mask  # 透過率に応じて元の画像を暗くする
         color_map += self.original_map_cut  # 貼り付ける方の画像に透過率をかけて加算
-
         gradation_array = self.__get_gradation_3d(50, self.image_size[0], (255, 255, 255), (0, 0, 0), (False, False, False))
         color_bar = cv2.applyColorMap(gradation_array, color_type)
         heatmap = cv2.hconcat([color_map, color_bar])
@@ -110,8 +114,9 @@ if __name__ == '__main__':
     path = os.path.dirname(os.path.abspath(__file__))
     obj = Heatmapimage(os.path.join(path,'Map_Honkan','1f_all'))
     for itr in range(0,13):
-        obj.add_circle(itr, 200)
+        obj.add_circle(itr,itr*19)
 
-    img = obj.export_heatmap_with_colorbar_overlay('.',mode=True)
+    #img = obj.export_heatmap_with_colorbar_overlay('.',mode=True)
+    img = obj.export_heatmap('.', alpha=0.3, color_type=cv2.COLORMAP_RAINBOW,mode=True)
     cv2.imshow('map',img)
     cv2.waitKey(0)
