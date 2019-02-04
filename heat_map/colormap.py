@@ -122,7 +122,10 @@ class Heatmapimage :
         mask = np.dstack([mask,mask,mask])
         self.original_map_cut = self.original_map_cut[:,:,:3]  # アルファチャンネルは取り出しちゃったのでもういらない
 
-        color_map *= 255 - mask  # 透過率に応じて元の画像を暗くする
+        mask = mask/255
+        mask = mask.astype(np.uint8)
+        color_map *= 1 - mask  # 透過率に応じて元の画像を暗くする
+        self.original_map_cut *= mask
         color_map += self.original_map_cut  # 貼り付ける方の画像に透過率をかけて加算
 
         gradation_array = self.__get_gradation_3d(50, self.image_size[0], (255, 255, 255), (0, 0, 0), (False, False, False))

@@ -24,8 +24,8 @@ heatmap1 = Heatmapimage('1f_all.jpg','1f_all.png',5)
 # heatmap1.add_gaussian(Region.Hbf12,[1000,1000],1.0)
 
 heatmap1.add_circle(Region.Hbf00,[120,20],50)
-heatmap1.add_circle(Region.Hbf01,[120,20],100)
-heatmap1.add_circle(Region.Hbf02,[120,20],100)
+heatmap1.add_circle(Region.Hbf01,[120,20],10)
+heatmap1.add_circle(Region.Hbf02,[120,20],10)
 heatmap1.add_circle(Region.Hbf03,[20,120],10)
 heatmap1.add_circle(Region.Hbf04,[20,120],10)
 heatmap1.add_circle(Region.Hbf05,[20,120],10)
@@ -34,8 +34,8 @@ heatmap1.add_circle(Region.Hbf07,[20,120],10)
 heatmap1.add_circle(Region.Hbf08,[20,120],10)
 heatmap1.add_circle(Region.Hbf09,[20,120],10)
 heatmap1.add_circle(Region.Hbf10,[20,120],10)
-heatmap1.add_circle(Region.Hbf11,[120,20],200)
-heatmap1.add_circle(Region.Hbf12,[120,20],200)
+heatmap1.add_circle(Region.Hbf11,[120,20],20)
+heatmap1.add_circle(Region.Hbf12,[120,20],10)
 
 #ヒートマップ画像を生成
 #カラーマップはCOLORMAP_OCEAN,COLORMAP_HSV,COLORMAP_RAINBOW,COLORMAP_HOTなどがある
