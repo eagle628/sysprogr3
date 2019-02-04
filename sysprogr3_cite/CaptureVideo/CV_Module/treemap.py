@@ -9,7 +9,7 @@ import logging
 class Treemapimage :
 
     def __init__(self, map_path, quality=1):
-        self.original_map = cv2.imread(map_path)
+        self.original_map = cv2.imread(map_path+'.jpg')
         self.resize_scale = quality
         self.image_size = list(self.original_map.shape[0:2])
         # read point
